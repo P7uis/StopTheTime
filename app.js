@@ -38,6 +38,7 @@
       clear: "Clear",
       complete: "Complete",
       confirmNewSession: "Start a new session and clear the current event log? Export first if you need this data.",
+      confirmRemoveStopwatch: "Remove this stopwatch? This cannot be undone.",
       confirmRemoveTimer: "Remove this timer? This cannot be undone.",
       confirmResetEventLog: "Reset the event log and start a clean session? This removes all recorded events. Export first if you need this data.",
       countdownHeading: "Timers",
@@ -73,6 +74,7 @@
       pause: "PAUSE",
       reset: "RESET",
       resetEventLog: "Reset event log",
+      removeStopwatch: "DELETE",
       removeTimer: "DELETE",
       restart: "RESTART",
       running: "Running",
@@ -121,6 +123,7 @@
       clear: "Wissen",
       complete: "Klaar",
       confirmNewSession: "Nieuwe sessie starten en de huidige event log wissen? Exporteer eerst als je deze data nodig hebt.",
+      confirmRemoveStopwatch: "Deze stopwatch verwijderen? Dit kan niet ongedaan worden gemaakt.",
       confirmRemoveTimer: "Deze timer verwijderen? Dit kan niet ongedaan worden gemaakt.",
       confirmResetEventLog: "Event log resetten en een schone sessie starten? Dit verwijdert alle opgenomen events. Exporteer eerst als je deze data nodig hebt.",
       countdownHeading: "Timers",
@@ -156,6 +159,7 @@
       pause: "PAUZE",
       reset: "RESET",
       resetEventLog: "Eventlog resetten",
+      removeStopwatch: "VERWIJDER",
       removeTimer: "VERWIJDER",
       restart: "HERSTART",
       running: "Loopt",
@@ -204,6 +208,7 @@
       clear: "Löschen",
       complete: "Fertig",
       confirmNewSession: "Neue Sitzung starten und das aktuelle Eventlog löschen? Exportiere zuerst, wenn du diese Daten brauchst.",
+      confirmRemoveStopwatch: "Diese Stoppuhr löschen? Das kann nicht rückgängig gemacht werden.",
       confirmRemoveTimer: "Diesen Timer löschen? Das kann nicht rückgängig gemacht werden.",
       confirmResetEventLog: "Eventlog zurücksetzen und eine saubere Sitzung starten? Das entfernt alle aufgezeichneten Events. Exportiere zuerst, wenn du diese Daten brauchst.",
       countdownHeading: "Timer",
@@ -239,6 +244,7 @@
       pause: "PAUSE",
       reset: "RESET",
       resetEventLog: "Eventlog zurücksetzen",
+      removeStopwatch: "LÖSCHEN",
       removeTimer: "LÖSCHEN",
       restart: "NEUSTART",
       running: "Läuft",
@@ -698,6 +704,8 @@
       stopStopwatch(stopwatch);
     } else if (action === "reset") {
       resetStopwatch(stopwatch);
+    } else if (action === "remove") {
+      removeStopwatch(stopwatch);
     }
   }
 
@@ -1075,6 +1083,19 @@
   function addStopwatch() {
     const number = state.stopwatches.length + 1;
     state.stopwatches.push(createStopwatch(`Stopwatch ${number}`, DEFAULT_COLORS[number % DEFAULT_COLORS.length], null));
+    render();
+    scheduleSave();
+  }
+
+  function removeStopwatch(stopwatch) {
+    if (!stopwatch || state.stopwatches.length <= 1 || !window.confirm(t("confirmRemoveStopwatch"))) {
+      return;
+    }
+
+    if (capturingStopwatchId === stopwatch.id) {
+      capturingStopwatchId = null;
+    }
+    state.stopwatches = state.stopwatches.filter((item) => item.id !== stopwatch.id);
     render();
     scheduleSave();
   }
@@ -1506,6 +1527,7 @@
             <button class="button button-secondary" type="button" data-stopwatch-action="lap" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>${escapeHtml(t("lap"))}</button>
             <button class="button button-danger" type="button" data-stopwatch-action="stop" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>${escapeHtml(t("stop"))}</button>
             <button class="button button-secondary" type="button" data-stopwatch-action="reset" data-stopwatch-id="${escapeHtml(stopwatch.id)}">${escapeHtml(t("reset"))}</button>
+            <button class="button button-quiet remove-stopwatch-button" type="button" data-stopwatch-action="remove" data-stopwatch-id="${escapeHtml(stopwatch.id)}" title="${escapeHtml(t("removeStopwatch"))}" ${state.stopwatches.length <= 1 ? "disabled" : ""}>${escapeHtml(t("removeStopwatch"))}</button>
           </div>
 
           <details class="lap-history" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.lapsOpen ? "open" : ""}>

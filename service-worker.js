@@ -1,9 +1,9 @@
-const CACHE_NAME = "stop-the-time-v36";
+const CACHE_NAME = "stop-the-time-v39";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
+  "./styles.css?v=39",
+  "./app.js?v=39",
   "./manifest.webmanifest",
   "./icons/icon.svg",
 ];

@@ -466,6 +466,7 @@ caption {
 .stopwatch-row {
   display: grid;
   grid-template-columns: minmax(15rem, 1fr) minmax(11ch, 13ch) auto;
+  position: relative;
   align-items: center;
   gap: 1rem;
   padding: 0.9rem;
@@ -485,10 +486,11 @@ caption {
 
 .stopwatch-meta {
   display: grid;
-  grid-template-columns: auto minmax(7rem, 1fr) auto;
+  grid-template-columns: auto minmax(7rem, 1fr);
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
+  padding-top: 1.35rem;
 }
 
 .status-wrap {
@@ -554,6 +556,9 @@ caption {
   border-radius: 8px;
   background: var(--bg);
   cursor: pointer;
+  position: absolute;
+  bottom: 0.65rem;
+  left: 0.65rem;
 }
 
 .stopwatch-shortcut {
@@ -597,6 +602,10 @@ caption {
   grid-column: 1 / -1;
   border-top: 1px solid var(--border);
   padding-top: 0.7rem;
+}
+
+.stopwatch-row .lap-history {
+  margin-bottom: 2.8rem;
 }
 
 .lap-history summary {
@@ -719,7 +728,8 @@ caption {
   padding: 0.5rem 0.7rem;
 }
 
-.countdown-row .countdown-actions .remove-timer-button {
+.countdown-row .countdown-actions .remove-timer-button,
+.stopwatch-row .timer-actions .remove-stopwatch-button {
   position: absolute;
   top: 0.45rem;
   left: 0.5rem;
@@ -732,7 +742,8 @@ caption {
   opacity: 0.68;
 }
 
-.countdown-row .countdown-actions .remove-timer-button:hover:not(:disabled) {
+.countdown-row .countdown-actions .remove-timer-button:hover:not(:disabled),
+.stopwatch-row .timer-actions .remove-stopwatch-button:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--danger) 38%, var(--border));
   background: color-mix(in srgb, var(--danger) 9%, transparent);
   color: var(--danger);
