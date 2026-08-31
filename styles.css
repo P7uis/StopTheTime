@@ -97,6 +97,10 @@ caption {
   border: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
@@ -191,8 +195,12 @@ caption {
   justify-content: center;
   min-height: 2.25rem;
   padding: 0.4rem 0.75rem;
+  border: 0;
   border-radius: 6px;
+  background: transparent;
   color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
   font-weight: 760;
   text-decoration: none;
 }
@@ -202,7 +210,7 @@ caption {
   color: var(--text);
 }
 
-.menu-link[aria-current="true"] {
+.menu-link[aria-pressed="true"] {
   background: var(--text);
   color: var(--bg);
 }

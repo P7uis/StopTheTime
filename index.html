@@ -24,8 +24,8 @@
       </div>
 
       <nav class="header-menu" aria-label="Timer menu">
-        <a class="menu-link" href="#stopwatchPanel" data-menu-target="stopwatchPanel" aria-current="true">Stopwatch</a>
-        <a class="menu-link" href="#timerPanel" data-menu-target="timerPanel">Timer</a>
+        <button class="menu-link" type="button" data-menu-target="stopwatchPanel" aria-pressed="true">Stopwatch</button>
+        <button class="menu-link" type="button" data-menu-target="timerPanel" aria-pressed="false">Timer</button>
       </nav>
 
       <div class="header-tools" aria-label="Application controls">
@@ -69,7 +69,7 @@
         <div id="stopwatchList" class="stopwatch-list" aria-live="polite"></div>
       </section>
 
-      <section id="timerPanel" class="workspace-section countdown-section" aria-labelledby="countdownHeading">
+      <section id="timerPanel" class="workspace-section countdown-section" aria-labelledby="countdownHeading" hidden>
         <div class="section-heading">
           <div>
             <p class="section-kicker">COUNTDOWN</p>

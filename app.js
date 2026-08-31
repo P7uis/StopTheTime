@@ -14,6 +14,7 @@
     ["Space", "Space is reserved for Start / Stop All."],
     ["KeyL", "L is reserved for Lap All."],
   ]);
+  const PANEL_IDS = ["stopwatchPanel", "timerPanel"];
   const SYSTEM_SENSITIVE = new Set([
     "Tab",
     "Escape",
@@ -74,6 +75,7 @@
     elements.html = document.documentElement;
     elements.metaTheme = document.querySelector('meta[name="theme-color"]');
     elements.headerMenuLinks = Array.from(document.querySelectorAll(".menu-link"));
+    elements.viewPanels = PANEL_IDS.map((id) => document.getElementById(id)).filter(Boolean);
     elements.liveClock = document.getElementById("liveClock");
     elements.newSessionBtn = document.getElementById("newSessionBtn");
     elements.themeButtons = Array.from(document.querySelectorAll(".theme-option"));
@@ -301,7 +303,7 @@
       });
     });
     elements.headerMenuLinks.forEach((link) => {
-      link.addEventListener("click", () => setActiveMenuTarget(link.dataset.menuTarget));
+      link.addEventListener("click", () => setActiveMenuTarget(link.dataset.menuTarget, true));
     });
 
     elements.newSessionBtn.addEventListener("click", createNewSession);
@@ -365,7 +367,10 @@
     } else if (typeof colorSchemeQuery.addListener === "function") {
       colorSchemeQuery.addListener(onColorSchemeChange);
     }
-    initHeaderMenuObserver();
+    setActiveMenuTarget(getInitialPanelTarget(), false);
+    window.addEventListener("hashchange", () => {
+      setActiveMenuTarget(getInitialPanelTarget(), false);
+    });
     window.addEventListener("beforeunload", persistNow);
   }
 
@@ -1155,38 +1160,26 @@
     elements.liveClock.dateTime = date.toISOString();
   }
 
-  function initHeaderMenuObserver() {
-    const sections = elements.headerMenuLinks
-      .map((link) => document.getElementById(link.dataset.menuTarget))
-      .filter(Boolean);
-
-    if (!("IntersectionObserver" in window) || !sections.length) {
-      return;
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      const visibleEntry = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((first, second) => second.intersectionRatio - first.intersectionRatio)[0];
-      if (visibleEntry) {
-        setActiveMenuTarget(visibleEntry.target.id);
-      }
-    }, {
-      rootMargin: "-25% 0px -55% 0px",
-      threshold: [0.1, 0.35, 0.6],
-    });
-
-    sections.forEach((section) => observer.observe(section));
+  function getInitialPanelTarget() {
+    const hashTarget = window.location.hash.replace("#", "");
+    return PANEL_IDS.includes(hashTarget) ? hashTarget : PANEL_IDS[0];
   }
 
-  function setActiveMenuTarget(targetId) {
+  function setActiveMenuTarget(targetId, shouldUpdateHash) {
+    const activeTarget = PANEL_IDS.includes(targetId) ? targetId : PANEL_IDS[0];
+
     elements.headerMenuLinks.forEach((link) => {
-      if (link.dataset.menuTarget === targetId) {
-        link.setAttribute("aria-current", "true");
-      } else {
-        link.removeAttribute("aria-current");
-      }
+      const isActive = link.dataset.menuTarget === activeTarget;
+      link.setAttribute("aria-pressed", String(isActive));
     });
+
+    elements.viewPanels.forEach((panel) => {
+      panel.hidden = panel.id !== activeTarget;
+    });
+
+    if (shouldUpdateHash) {
+      history.replaceState(null, "", `#${activeTarget}`);
+    }
   }
 
   function exportCsv() {
