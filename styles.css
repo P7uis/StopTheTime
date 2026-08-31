@@ -158,12 +158,48 @@ caption {
   font-size: 1.55rem;
 }
 
-.app-version {
-  margin-left: 0.25rem;
+.app-footer {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.65rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.35em 0.75em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--text) 16%, transparent);
   color: var(--text-muted);
-  font-size: 0.72rem;
-  font-weight: 720;
-  vertical-align: middle;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+
+.app-footer-version {
+  color: var(--text);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-weight: 700;
+}
+
+.app-footer-sep {
+  opacity: 0.55;
+  user-select: none;
+}
+
+.app-footer-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.app-footer-link:hover {
+  text-decoration: underline;
+}
+
+.app-footer-by {
+  color: inherit;
 }
 
 .section-heading h2 {
@@ -1146,6 +1182,17 @@ caption {
 
   .fullscreen-controls .button {
     width: 100%;
+  }
+}
+
+@media (max-width: 519px) {
+  .app-footer {
+    right: auto;
+    left: 50%;
+    max-width: calc(100vw - 1rem);
+    transform: translateX(-50%);
+    font-size: 0.62rem;
+    padding: 0.3em 0.55em;
   }
 }
 
