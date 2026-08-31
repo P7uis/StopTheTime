@@ -11,8 +11,8 @@
     <title>StopTheTime</title>
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="./styles.css?v=44">
-    <script src="./app.js?v=44" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=45">
+    <script src="./app.js?v=45" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main" data-i18n="skipLink">Skip to timers</a>
@@ -133,7 +133,7 @@
               Reset event log
             </button>
             <button id="exportCsvBtn" class="button button-primary" type="button" data-i18n="exportCsv">
-              Export session log -&gt; CSV
+              Export Event Log as CSV
             </button>
           </div>
         </div>
@@ -141,7 +141,7 @@
         <p id="eventCount" class="session-meta">0 events recorded</p>
         <div class="event-table-wrap">
           <table class="event-table">
-            <caption>Recent session events</caption>
+            <caption data-i18n="recentEventLog">Recent event log</caption>
             <thead>
               <tr>
                 <th scope="col" data-i18n="tableTime">Time</th>
@@ -189,7 +189,7 @@
     </div>
 
     <footer id="app-footer" class="app-footer" role="contentinfo" aria-label="App version and credits">
-      <span aria-hidden="true">v</span><span class="app-footer-version">1.1.4</span>
+      <span aria-hidden="true">v</span><span class="app-footer-version">1.1.5</span>
       <span class="app-footer-sep" aria-hidden="true">·</span>
       <a class="app-footer-link" href="./LICENSE" title="GNU General Public License version 3">GPL v3</a>
       <span class="app-footer-sep" aria-hidden="true">·</span>
