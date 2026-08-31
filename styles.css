@@ -802,6 +802,11 @@ caption {
   width: 100%;
 }
 
+html[lang="nl"] .countdown-display-actions [data-countdown-action="fullscreen"] {
+  font-size: 0.7rem;
+  line-height: 1.05;
+}
+
 .countdown-row .countdown-actions .remove-timer-button,
 .stopwatch-row .timer-actions .remove-stopwatch-button {
   position: absolute;
