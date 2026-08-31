@@ -584,6 +584,10 @@ caption {
   font-weight: 700;
 }
 
+.stopwatch-name-input {
+  max-width: 22rem;
+}
+
 .stopwatch-color {
   width: 2.5rem;
   height: 2.45rem;
