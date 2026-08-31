@@ -8,6 +8,8 @@ StopTheTime is a dependency-free, fully client-side web app for running multiple
 - Global shortcuts: Space for Start / Stop All, L for Lap All.
 - Append-only session event log exported as UTF-8 CSV with all start, stop, lap, reset, and countdown events.
 - Countdown timer with Beep, Chime, Bell, Mute, volume control, Test sound, and fullscreen mode.
+- Floating header menu for quick Stopwatch / Timer navigation.
+- Inline `HH:MM:SS` countdown editing by clicking the time digits.
 - Auto, Dark, and Light themes with local persistence.
 - Local session persistence through browser refresh.
 - PWA manifest and service worker for offline use after the app has loaded once.

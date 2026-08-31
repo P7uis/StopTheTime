@@ -23,6 +23,11 @@
         <h1>StopTheTime</h1>
       </div>
 
+      <nav class="header-menu" aria-label="Timer menu">
+        <a class="menu-link" href="#stopwatchPanel" data-menu-target="stopwatchPanel" aria-current="true">Stopwatch</a>
+        <a class="menu-link" href="#timerPanel" data-menu-target="timerPanel">Timer</a>
+      </nav>
+
       <div class="header-tools" aria-label="Application controls">
         <time id="liveClock" class="live-clock" datetime="">--:--:-- --:--:----</time>
 
@@ -39,7 +44,7 @@
     </header>
 
     <main id="main" class="app-shell">
-      <section class="workspace-section" aria-labelledby="stopwatchHeading">
+      <section id="stopwatchPanel" class="workspace-section" aria-labelledby="stopwatchHeading">
         <div class="section-heading">
           <div>
             <p class="section-kicker">STOPWATCHES</p>
@@ -64,7 +69,7 @@
         <div id="stopwatchList" class="stopwatch-list" aria-live="polite"></div>
       </section>
 
-      <section class="workspace-section countdown-section" aria-labelledby="countdownHeading">
+      <section id="timerPanel" class="workspace-section countdown-section" aria-labelledby="countdownHeading">
         <div class="section-heading">
           <div>
             <p class="section-kicker">COUNTDOWN</p>
@@ -79,22 +84,14 @@
             <input id="countdownName" type="text" autocomplete="off" spellcheck="false">
           </label>
 
-          <div class="duration-fields" role="group" aria-label="Countdown duration">
-            <label class="field">
-              <span>Hours</span>
-              <input id="countdownHours" type="number" min="0" max="99" inputmode="numeric">
-            </label>
-            <label class="field">
-              <span>Minutes</span>
-              <input id="countdownMinutes" type="number" min="0" max="59" inputmode="numeric">
-            </label>
-            <label class="field">
-              <span>Seconds</span>
-              <input id="countdownSeconds" type="number" min="0" max="59" inputmode="numeric">
-            </label>
+          <div id="countdownDisplay" class="countdown-display" role="group" aria-label="Countdown duration">
+            <input id="countdownHours" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown hours">
+            <span class="time-separator" aria-hidden="true">:</span>
+            <input id="countdownMinutes" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown minutes">
+            <span class="time-separator" aria-hidden="true">:</span>
+            <input id="countdownSeconds" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown seconds">
+            <span class="time-format-label" aria-hidden="true">H:m:s</span>
           </div>
-
-          <output id="countdownDisplay" class="countdown-display">00:05</output>
 
           <div class="countdown-actions" role="group" aria-label="Countdown controls">
             <button id="countdownStartBtn" class="button button-primary" type="button">START</button>

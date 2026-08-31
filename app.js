@@ -73,6 +73,7 @@
   function cacheElements() {
     elements.html = document.documentElement;
     elements.metaTheme = document.querySelector('meta[name="theme-color"]');
+    elements.headerMenuLinks = Array.from(document.querySelectorAll(".menu-link"));
     elements.liveClock = document.getElementById("liveClock");
     elements.newSessionBtn = document.getElementById("newSessionBtn");
     elements.themeButtons = Array.from(document.querySelectorAll(".theme-option"));
@@ -299,6 +300,9 @@
         scheduleSave();
       });
     });
+    elements.headerMenuLinks.forEach((link) => {
+      link.addEventListener("click", () => setActiveMenuTarget(link.dataset.menuTarget));
+    });
 
     elements.newSessionBtn.addEventListener("click", createNewSession);
     elements.addStopwatchBtn.addEventListener("click", addStopwatch);
@@ -319,7 +323,13 @@
     });
 
     [elements.countdownHours, elements.countdownMinutes, elements.countdownSeconds].forEach((input) => {
+      input.addEventListener("focus", () => input.select());
       input.addEventListener("input", updateCountdownDurationFromInputs);
+      input.addEventListener("blur", () => {
+        updateCountdownDurationFromInputs();
+        updateCountdownDisplays(true);
+      });
+      input.addEventListener("keydown", onCountdownSegmentKeydown);
     });
 
     elements.countdownStartBtn.addEventListener("click", startOrPauseCountdown);
@@ -355,6 +365,7 @@
     } else if (typeof colorSchemeQuery.addListener === "function") {
       colorSchemeQuery.addListener(onColorSchemeChange);
     }
+    initHeaderMenuObserver();
     window.addEventListener("beforeunload", persistNow);
   }
 
@@ -838,10 +849,35 @@
     scheduleSave();
   }
 
+  function onCountdownSegmentKeydown(event) {
+    if (state.countdown.status === "running") {
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.target.blur();
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.target.value = event.target.dataset.committedValue || "00";
+      updateCountdownDurationFromInputs();
+      event.target.blur();
+      return;
+    }
+
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      nudgeCountdownSegment(event.target, event.key === "ArrowUp" ? 1 : -1, event.shiftKey ? 10 : 1);
+    }
+  }
+
   function updateCountdownDurationFromInputs() {
-    const hours = clamp(Math.round(toSafeNumber(elements.countdownHours.value)), 0, 99);
-    const minutes = clamp(Math.round(toSafeNumber(elements.countdownMinutes.value)), 0, 59);
-    const seconds = clamp(Math.round(toSafeNumber(elements.countdownSeconds.value)), 0, 59);
+    const hours = readCountdownSegment(elements.countdownHours, 99);
+    const minutes = readCountdownSegment(elements.countdownMinutes, 59);
+    const seconds = readCountdownSegment(elements.countdownSeconds, 59);
     const durationMs = durationFromParts(hours, minutes, seconds);
 
     state.countdown.hours = hours;
@@ -852,9 +888,25 @@
     if (state.countdown.status !== "running") {
       state.countdown.status = "idle";
       state.countdown.remainingMs = durationMs;
-      renderCountdown();
+      updateCountdownDisplays();
     }
     scheduleSave();
+  }
+
+  function readCountdownSegment(input, max) {
+    const cleanValue = input.value.replace(/\D/g, "").slice(0, 2);
+    if (input.value !== cleanValue) {
+      input.value = cleanValue;
+    }
+    return clamp(Math.round(toSafeNumber(cleanValue)), 0, max);
+  }
+
+  function nudgeCountdownSegment(input, direction, step) {
+    const max = input === elements.countdownHours ? 99 : 59;
+    const current = readCountdownSegment(input, max);
+    input.value = pad(clamp(current + (direction * step), 0, max));
+    updateCountdownDurationFromInputs();
+    input.select();
   }
 
   function getStopwatchElapsed(stopwatch) {
@@ -978,9 +1030,6 @@
     const countdown = state.countdown;
     elements.countdownSection.dataset.status = countdown.status;
     setValueUnlessFocused(elements.countdownName, countdown.name);
-    setValueUnlessFocused(elements.countdownHours, String(countdown.hours));
-    setValueUnlessFocused(elements.countdownMinutes, String(countdown.minutes));
-    setValueUnlessFocused(elements.countdownSeconds, String(countdown.seconds));
     elements.countdownHours.disabled = countdown.status === "running";
     elements.countdownMinutes.disabled = countdown.status === "running";
     elements.countdownSeconds.disabled = countdown.status === "running";
@@ -995,7 +1044,7 @@
         : "START";
     elements.countdownStartBtn.disabled = countdown.durationMs <= 0 && countdown.status !== "running";
     elements.countdownStatus.textContent = STATUS_LABEL[countdown.status] || titleCase(countdown.status);
-    updateCountdownDisplays();
+    updateCountdownDisplays(true);
     renderEventLog();
   }
 
@@ -1057,10 +1106,13 @@
     });
   }
 
-  function updateCountdownDisplays() {
+  function updateCountdownDisplays(forceSegmentRender = false) {
     const remainingMs = getCountdownRemaining();
+    const parts = countdownPartsFromMs(remainingMs);
     const display = formatCountdown(remainingMs);
-    elements.countdownDisplay.textContent = display;
+    setCountdownSegment(elements.countdownHours, parts.hours, forceSegmentRender);
+    setCountdownSegment(elements.countdownMinutes, parts.minutes, forceSegmentRender);
+    setCountdownSegment(elements.countdownSeconds, parts.seconds, forceSegmentRender);
     elements.fullscreenCountdownDisplay.textContent = display;
     elements.fullscreenCountdownName.textContent = state.countdown.name.toUpperCase();
     elements.fullscreenCountdown.classList.toggle("countdown-complete", state.countdown.status === "complete");
@@ -1068,6 +1120,15 @@
     const duration = Math.max(1, state.countdown.durationMs);
     const progress = state.countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
     elements.fullscreenProgressBar.style.transform = `scaleX(${progress})`;
+  }
+
+  function setCountdownSegment(input, value, forceSegmentRender) {
+    const max = input === elements.countdownHours ? 99 : 59;
+    const text = pad(clamp(value, 0, max));
+    input.dataset.committedValue = text;
+    if (forceSegmentRender || document.activeElement !== input) {
+      input.value = text;
+    }
   }
 
   function animationLoop() {
@@ -1092,6 +1153,40 @@
     const clockText = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
     elements.liveClock.textContent = clockText;
     elements.liveClock.dateTime = date.toISOString();
+  }
+
+  function initHeaderMenuObserver() {
+    const sections = elements.headerMenuLinks
+      .map((link) => document.getElementById(link.dataset.menuTarget))
+      .filter(Boolean);
+
+    if (!("IntersectionObserver" in window) || !sections.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const visibleEntry = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((first, second) => second.intersectionRatio - first.intersectionRatio)[0];
+      if (visibleEntry) {
+        setActiveMenuTarget(visibleEntry.target.id);
+      }
+    }, {
+      rootMargin: "-25% 0px -55% 0px",
+      threshold: [0.1, 0.35, 0.6],
+    });
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  function setActiveMenuTarget(targetId) {
+    elements.headerMenuLinks.forEach((link) => {
+      if (link.dataset.menuTarget === targetId) {
+        link.setAttribute("aria-current", "true");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
   }
 
   function exportCsv() {
@@ -1342,15 +1437,17 @@
   }
 
   function formatCountdown(ms) {
-    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-    const seconds = totalSeconds % 60;
-    const minutes = Math.floor(totalSeconds / 60) % 60;
-    const hours = Math.floor(totalSeconds / 3600);
+    const parts = countdownPartsFromMs(ms);
+    return `${pad(parts.hours)}:${pad(parts.minutes)}:${pad(parts.seconds)}`;
+  }
 
-    if (hours > 0) {
-      return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-    }
-    return `${pad(minutes)}:${pad(seconds)}`;
+  function countdownPartsFromMs(ms) {
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    return {
+      hours: Math.floor(totalSeconds / 3600),
+      minutes: Math.floor(totalSeconds / 60) % 60,
+      seconds: totalSeconds % 60,
+    };
   }
 
   function formatEventTime(timestamp) {
