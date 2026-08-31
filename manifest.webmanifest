@@ -1,0 +1,19 @@
+{
+  "name": "StopTheTime",
+  "short_name": "StopTime",
+  "description": "A fast, offline-capable stopwatch and countdown app for timing multiple runners or experiments at once.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1118",
+  "theme_color": "#10141f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

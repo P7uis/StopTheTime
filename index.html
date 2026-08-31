@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10141f">
+    <meta
+      name="description"
+      content="A fast, offline-capable stopwatch and countdown app for timing multiple runners or experiments at once."
+    >
+    <title>StopTheTime</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to timers</a>
+
+    <header class="app-header">
+      <div class="brand-block">
+        <p class="section-kicker">TIMERS</p>
+        <h1>StopTheTime</h1>
+      </div>
+
+      <div class="header-tools" aria-label="Application controls">
+        <time id="liveClock" class="live-clock" datetime="">--:--:-- --:--:----</time>
+
+        <button id="newSessionBtn" class="button button-secondary" type="button">
+          New Session
+        </button>
+
+        <div class="theme-control" role="group" aria-label="Theme">
+          <button class="theme-option" type="button" data-theme-value="auto" aria-pressed="true">Auto</button>
+          <button class="theme-option" type="button" data-theme-value="dark" aria-pressed="false">Dark</button>
+          <button class="theme-option" type="button" data-theme-value="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="app-shell">
+      <section class="workspace-section" aria-labelledby="stopwatchHeading">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">STOPWATCHES</p>
+            <h2 id="stopwatchHeading">Runners</h2>
+          </div>
+          <p id="sessionMeta" class="session-meta">Session ready</p>
+        </div>
+
+        <div class="global-actions" role="group" aria-label="Global stopwatch controls">
+          <button id="startAllBtn" class="button button-primary" type="button">START ALL</button>
+          <button id="stopAllBtn" class="button button-danger" type="button">STOP ALL</button>
+          <button id="lapAllBtn" class="button button-secondary" type="button">LAP ALL</button>
+          <button id="addStopwatchBtn" class="button button-quiet" type="button">+ Stopwatch</button>
+        </div>
+
+        <div id="stopwatchList" class="stopwatch-list" aria-live="polite"></div>
+      </section>
+
+      <section class="workspace-section countdown-section" aria-labelledby="countdownHeading">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">COUNTDOWN</p>
+            <h2 id="countdownHeading">Experiment</h2>
+          </div>
+          <output id="countdownStatus" class="status-pill" aria-live="polite">Idle</output>
+        </div>
+
+        <div class="countdown-grid">
+          <label class="field countdown-name-field">
+            <span>Name</span>
+            <input id="countdownName" type="text" autocomplete="off" spellcheck="false">
+          </label>
+
+          <div class="duration-fields" role="group" aria-label="Countdown duration">
+            <label class="field">
+              <span>Hours</span>
+              <input id="countdownHours" type="number" min="0" max="99" inputmode="numeric">
+            </label>
+            <label class="field">
+              <span>Minutes</span>
+              <input id="countdownMinutes" type="number" min="0" max="59" inputmode="numeric">
+            </label>
+            <label class="field">
+              <span>Seconds</span>
+              <input id="countdownSeconds" type="number" min="0" max="59" inputmode="numeric">
+            </label>
+          </div>
+
+          <output id="countdownDisplay" class="countdown-display">00:05</output>
+
+          <div class="countdown-actions" role="group" aria-label="Countdown controls">
+            <button id="countdownStartBtn" class="button button-primary" type="button">START</button>
+            <button id="countdownResetBtn" class="button button-secondary" type="button">RESET</button>
+            <button id="countdownFullscreenBtn" class="button button-quiet" type="button">FULLSCREEN</button>
+          </div>
+        </div>
+
+        <div class="sound-row">
+          <label class="field compact-field">
+            <span>Sound</span>
+            <select id="soundSelect">
+              <option value="beep">Beep</option>
+              <option value="chime">Chime</option>
+              <option value="bell">Bell</option>
+              <option value="mute">Mute</option>
+            </select>
+          </label>
+
+          <label class="field volume-field">
+            <span>Volume <output id="volumeValue">100%</output></span>
+            <input id="volumeInput" type="range" min="0" max="100" step="1">
+          </label>
+
+          <button id="testSoundBtn" class="button button-secondary" type="button">Test sound</button>
+        </div>
+      </section>
+
+      <section class="workspace-section shortcuts-section" aria-labelledby="shortcutHeading">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">KEYBOARD SHORTCUTS</p>
+            <h2 id="shortcutHeading">Controls</h2>
+          </div>
+          <button id="editShortcutsBtn" class="button button-secondary" type="button">Edit shortcuts</button>
+        </div>
+
+        <div class="shortcut-layout">
+          <div class="shortcut-group" aria-label="Global shortcuts">
+            <h3>Global</h3>
+            <dl class="shortcut-list">
+              <div>
+                <dt>Space</dt>
+                <dd>Start / Stop All</dd>
+              </div>
+              <div>
+                <dt>L</dt>
+                <dd>Lap All</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="shortcut-group" aria-label="Stopwatch shortcuts">
+            <h3>Stopwatches</h3>
+            <div id="shortcutRows" class="shortcut-rows"></div>
+          </div>
+        </div>
+
+        <p id="shortcutMessage" class="inline-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="workspace-section export-section" aria-labelledby="exportHeading">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">SESSION LOG</p>
+            <h2 id="exportHeading">Events</h2>
+          </div>
+          <button id="exportCsvBtn" class="button button-primary" type="button">
+            Export complete session -&gt; CSV
+          </button>
+        </div>
+
+        <p id="eventCount" class="session-meta">0 events recorded</p>
+        <div class="event-table-wrap">
+          <table class="event-table">
+            <caption>Recent session events</caption>
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Timer</th>
+                <th scope="col">Event</th>
+                <th scope="col">Elapsed</th>
+                <th scope="col">Lap</th>
+              </tr>
+            </thead>
+            <tbody id="eventRows">
+              <tr>
+                <td colspan="5">No events yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="fullscreenCountdown" class="fullscreen-countdown" role="dialog" aria-modal="true" aria-labelledby="fullscreenCountdownName" hidden>
+      <button id="exitFullscreenBtn" class="button button-secondary fullscreen-exit" type="button" aria-label="Exit fullscreen countdown">
+        Exit
+      </button>
+      <div class="fullscreen-content">
+        <p id="fullscreenCountdownName" class="fullscreen-name">EXPERIMENT</p>
+        <output id="fullscreenCountdownDisplay" class="fullscreen-time">00:05</output>
+        <div class="fullscreen-progress" aria-hidden="true">
+          <span id="fullscreenProgressBar"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
