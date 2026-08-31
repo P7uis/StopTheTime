@@ -52,7 +52,17 @@
       exit: "Exit",
       exitClockFullscreen: "Exit full screen clock",
       exitFullscreen: "Exit fullscreen countdown",
-      exportCsv: "Export complete session -> CSV",
+      csvDate: "Date",
+      csvElapsed: "Elapsed",
+      csvEvent: "Event",
+      csvLap: "Lap",
+      csvName: "Name",
+      csvSplit: "Split",
+      csvStopwatch: "Stopwatch",
+      csvTime: "Time",
+      csvTimer: "Timer",
+      csvType: "Type",
+      exportCsv: "Export session log -> CSV",
       fullscreen: "FULLSCREEN",
       fullscreenTimerControls: "Fullscreen timer controls",
       globalStopwatchControls: "Global stopwatch controls",
@@ -137,7 +147,17 @@
       exit: "Sluiten",
       exitClockFullscreen: "Sluit klok volledig scherm",
       exitFullscreen: "Sluit timer volledig scherm",
-      exportCsv: "Exporteer complete sessie -> CSV",
+      csvDate: "Datum",
+      csvElapsed: "Verstreken tijd",
+      csvEvent: "Gebeurtenis",
+      csvLap: "Ronde",
+      csvName: "Naam",
+      csvSplit: "Tussentijd",
+      csvStopwatch: "Stopwatch",
+      csvTime: "Tijd",
+      csvTimer: "Timer",
+      csvType: "Soort",
+      exportCsv: "Exporteer sessielog -> CSV",
       fullscreen: "VOLLEDIG SCHERM",
       fullscreenTimerControls: "Timerbediening in volledig scherm",
       globalStopwatchControls: "Algemene stopwatchbediening",
@@ -222,7 +242,17 @@
       exit: "Schließen",
       exitClockFullscreen: "Uhr im Vollbild schließen",
       exitFullscreen: "Timer-Vollbild schließen",
-      exportCsv: "Komplette Sitzung -> CSV",
+      csvDate: "Datum",
+      csvElapsed: "Verstrichene Zeit",
+      csvEvent: "Ereignis",
+      csvLap: "Runde",
+      csvName: "Name",
+      csvSplit: "Zwischenzeit",
+      csvStopwatch: "Stoppuhr",
+      csvTime: "Uhrzeit",
+      csvTimer: "Timer",
+      csvType: "Typ",
+      exportCsv: "Sitzungsprotokoll -> CSV",
       fullscreen: "VOLLBILD",
       fullscreenTimerControls: "Timer-Steuerung im Vollbild",
       globalStopwatchControls: "Globale Stoppuhr-Steuerung",
@@ -1830,32 +1860,30 @@
 
   function exportCsv() {
     const header = [
-      "timestamp",
-      "session_id",
-      "event_id",
-      "stopwatch_id",
-      "stopwatch",
-      "event",
-      "elapsed_hms",
-      "lap",
-      "split_ms",
+      t("csvDate"),
+      t("csvTime"),
+      t("csvType"),
+      t("csvName"),
+      t("csvEvent"),
+      t("csvElapsed"),
+      t("csvLap"),
+      t("csvSplit"),
     ];
     const rows = state.eventLog.map((event) => [
-      event.timestamp,
-      event.sessionId,
-      event.eventId,
-      event.stopwatchId,
+      formatCsvDate(event.timestamp),
+      formatEventTime(event.timestamp),
+      isCountdownEvent(event) ? t("csvTimer") : t("csvStopwatch"),
       event.stopwatchName,
-      event.eventType,
+      exportEventLabel(event),
       formatElapsedHms(event.elapsedMs),
-      event.lapNumber,
-      event.splitMs,
+      event.lapNumber === "" ? "" : event.lapNumber,
+      event.splitMs === "" ? "" : formatElapsedHms(event.splitMs),
     ]);
-    const csv = [header, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
+    const csv = [header, ...rows].map((row) => row.map(csvEscape).join(";")).join("\r\n");
     const blob = new Blob([`\uFEFF${csv}\r\n`], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `stopwatch-session-${formatFilenameDate(new Date())}.csv`;
+    link.download = `stop-the-time-session-${formatFilenameDate(new Date())}.csv`;
     document.body.append(link);
     link.click();
     link.remove();
@@ -2294,6 +2322,23 @@
     return labels[eventType] ? t(labels[eventType]) : eventType.replace(/^countdown_/, "timer_").replace(/_/g, " ");
   }
 
+  function isCountdownEvent(event) {
+    return String(event.eventType || "").startsWith("countdown_");
+  }
+
+  function exportEventLabel(event) {
+    if (isCountdownEvent(event)) {
+      return eventLabel(event.eventType);
+    }
+    const labels = {
+      start: t("start"),
+      stop: t("stop"),
+      lap: t("lap"),
+      reset: t("reset"),
+    };
+    return labels[event.eventType] || eventLabel(event.eventType);
+  }
+
   function getThemeLabel(mode) {
     const labels = THEME_LABELS[mode] || THEME_LABELS.auto;
     return labels[state.language] || labels.en;
@@ -2346,6 +2391,14 @@
       return "";
     }
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  function formatCsvDate(timestamp) {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+    return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
   }
 
   function formatFilenameDate(date) {
