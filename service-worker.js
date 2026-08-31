@@ -1,4 +1,4 @@
-const CACHE_NAME = "stop-the-time-v1";
+const CACHE_NAME = "stop-the-time-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -37,25 +37,19 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.ok) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-          return caches.match(event.request);
-        });
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.ok) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        if (event.request.mode === "navigate") {
+          return caches.match("./index.html");
+        }
+        return caches.match(event.request);
+      })
   );
 });

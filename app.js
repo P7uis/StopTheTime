@@ -97,6 +97,7 @@
     elements.volumeValue = document.getElementById("volumeValue");
     elements.testSoundBtn = document.getElementById("testSoundBtn");
     elements.shortcutMessage = document.getElementById("shortcutMessage");
+    elements.resetEventLogBtn = document.getElementById("resetEventLogBtn");
     elements.exportCsvBtn = document.getElementById("exportCsvBtn");
     elements.eventCount = document.getElementById("eventCount");
     elements.eventRows = document.getElementById("eventRows");
@@ -304,6 +305,7 @@
     elements.startAllBtn.addEventListener("click", startAllStopwatches);
     elements.stopAllBtn.addEventListener("click", stopAllStopwatches);
     elements.lapAllBtn.addEventListener("click", lapAllStopwatches);
+    elements.resetEventLogBtn.addEventListener("click", resetEventLog);
     elements.exportCsvBtn.addEventListener("click", exportCsv);
 
     elements.stopwatchList.addEventListener("click", onStopwatchClick);
@@ -695,6 +697,25 @@
       return;
     }
 
+    startCleanSession();
+  }
+
+  function resetEventLog() {
+    if (!state.eventLog.length) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Reset the event log and start a clean session? This removes all recorded events. Export first if you need this data."
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    startCleanSession();
+  }
+
+  function startCleanSession() {
     state.stopwatches = state.stopwatches.map((stopwatch) => ({
       ...stopwatch,
       status: "idle",
@@ -981,6 +1002,7 @@
   function renderEventLog() {
     const count = state.eventLog.length;
     elements.eventCount.textContent = `${count} ${count === 1 ? "event" : "events"} recorded`;
+    elements.resetEventLogBtn.disabled = count === 0;
 
     if (!count) {
       elements.eventRows.innerHTML = `<tr><td colspan="5">No events yet</td></tr>`;

@@ -232,6 +232,14 @@ caption {
   border-bottom: 1px solid var(--border);
 }
 
+.section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
 .session-meta,
 .inline-message {
   margin: 0;
@@ -814,6 +822,16 @@ caption {
     align-items: flex-start;
     flex-direction: column;
     min-height: 0;
+  }
+
+  .section-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .section-actions .button {
+    width: 100%;
   }
 
   .stopwatch-meta {
