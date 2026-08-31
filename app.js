@@ -458,7 +458,7 @@
       createdAt: new Date().toISOString(),
       theme: localStorage.getItem(THEME_KEY) || "auto",
       language: localStorage.getItem(LANGUAGE_KEY) || getPreferredLanguage(),
-      stopwatches: [0, 1, 2].map((index) =>
+      stopwatches: [0].map((index) =>
         createStopwatch(`Stopwatch ${index + 1}`, DEFAULT_COLORS[index], DEFAULT_SHORTCUTS[index])
       ),
       countdowns: [createCountdown("Timer 1", 0, 0, 5)],
