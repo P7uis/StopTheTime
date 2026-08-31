@@ -1,5 +1,7 @@
 # StopTheTime
 
+Version 1.0.0
+
 StopTheTime is a dependency-free, fully client-side web app for running multiple stopwatches and one countdown timer at the same time.
 
 ## Features
@@ -7,7 +9,7 @@ StopTheTime is a dependency-free, fully client-side web app for running multiple
 - Multiple stopwatches with start, lap, stop, reset, names, colors, and per-stopwatch shortcuts.
 - Global shortcuts: Space for Start / Stop All, L for Lap All.
 - Append-only session event log exported as UTF-8 CSV with all start, stop, lap, reset, and countdown events.
-- Countdown timer with Beep, Chime, Bell, Mute, volume control, Test sound, and fullscreen mode.
+- Countdown timer with Beep, Chime, Bell, Tring, Mute, volume control, Test sound, and fullscreen mode.
 - Floating header menu for quick Stopwatch / Timer navigation.
 - Inline `HH:MM:SS` countdown editing by clicking the time digits.
 - Auto, Dark, and Light themes with local persistence.
@@ -25,3 +27,7 @@ python -m http.server 4173
 ## GitHub Pages
 
 This project is ready to publish from the repository root. In GitHub, enable Pages from the main branch and root folder.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE).

@@ -158,6 +158,14 @@ caption {
   font-size: 1.55rem;
 }
 
+.app-version {
+  margin-left: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 720;
+  vertical-align: middle;
+}
+
 .section-heading h2 {
   font-size: 1.35rem;
 }
