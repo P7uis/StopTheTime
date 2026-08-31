@@ -3,7 +3,10 @@
 
   const STORAGE_KEY = "stop-the-time.state.v1";
   const THEME_KEY = "stop-the-time.theme";
+  const LANGUAGE_KEY = "stop-the-time.language";
   const SAVE_DELAY_MS = 120;
+  const ALARM_DURATION_SECONDS = 5;
+  const SOUND_VALUES = ["beep", "chime", "bell", "ring", "mute"];
   const DEFAULT_COLORS = ["#2563eb", "#13895f", "#7c3aed", "#c2413a", "#b7791f", "#0891b2"];
   const DEFAULT_SHORTCUTS = [
     { code: "KeyA", label: "A" },
@@ -15,6 +18,7 @@
     ["KeyL", "L is reserved for Lap All."],
   ]);
   const PANEL_IDS = ["stopwatchPanel", "timerPanel"];
+  const LANGUAGE_VALUES = ["nl", "en", "de"];
   const SYSTEM_SENSITIVE = new Set([
     "Tab",
     "Escape",
@@ -26,10 +30,268 @@
     "F12",
     "PrintScreen",
   ]);
-  const STATUS_LABEL = {
-    idle: "Idle",
-    running: "Running",
-    stopped: "Stopped",
+  const TRANSLATIONS = {
+    en: {
+      addStopwatch: "+ Stopwatch",
+      addTimer: "+ Timer",
+      appearance: "Appearance",
+      clear: "Clear",
+      complete: "Complete",
+      confirmNewSession: "Start a new session and clear the current event log? Export first if you need this data.",
+      confirmRemoveTimer: "Remove this timer? This cannot be undone.",
+      confirmResetEventLog: "Reset the event log and start a clean session? This removes all recorded events. Export first if you need this data.",
+      countdownHeading: "Timers",
+      eventCount: "{count} {eventWord} recorded",
+      eventSingular: "event",
+      eventPlural: "events",
+      eventTimerComplete: "timer completed",
+      eventTimerReset: "timer reset",
+      eventTimerStart: "timer started",
+      eventTimerStop: "timer stopped",
+      exit: "Exit",
+      exitClockFullscreen: "Exit full screen clock",
+      exitFullscreen: "Exit fullscreen countdown",
+      exportCsv: "Export complete session -> CSV",
+      fullscreen: "FULLSCREEN",
+      fullscreenTimerControls: "Fullscreen timer controls",
+      globalStopwatchControls: "Global stopwatch controls",
+      globalTimerControls: "Global timer controls",
+      idle: "Idle",
+      language: "Language",
+      lap: "LAP",
+      lapAll: "LAP ALL",
+      lapShortcut: "Lap All",
+      laps: "Laps",
+      newSession: "New Session",
+      noEvents: "No events yet",
+      noLaps: "No laps recorded",
+      navStopwatch: "Stopwatch",
+      navTimer: "Timer",
+      openClockFullscreen: "Open full screen clock",
+      overallVolumeLabel: "Overall volume",
+      paused: "Stopped",
+      pause: "PAUSE",
+      reset: "RESET",
+      resetEventLog: "Reset event log",
+      removeTimer: "DELETE",
+      restart: "RESTART",
+      running: "Running",
+      sessionLogHeading: "Session Log",
+      sessionMeta: "{stopwatches} {stopwatchWord} - {running} running - {events} {eventWord}",
+      setKey: "Set key",
+      shortcut: "Shortcut",
+      shortcutPressKey: "Press a key...",
+      soundBeep: "Beep",
+      soundBell: "Bell",
+      soundChime: "Chime",
+      soundLabel: "Sound",
+      soundMute: "Mute",
+      soundRing: "Ring",
+      skipLink: "Skip to timers",
+      spaceShortcut: "Start / Stop All",
+      start: "START",
+      startAll: "START ALL",
+      startAllTimers: "START ALL TIMERS",
+      stop: "STOP",
+      stopAll: "STOP ALL",
+      stopAllTimers: "STOP ALL TIMERS",
+      pauseAllTimers: "PAUSE ALL TIMERS",
+      stopwatchDefaultName: "Stopwatch",
+      stopwatchHeading: "Stopwatches",
+      stopwatchPlural: "stopwatches",
+      stopwatchSingular: "stopwatch",
+      tableElapsed: "Elapsed",
+      tableEvent: "Event",
+      tableLap: "Lap",
+      tableTime: "Time",
+      tableTimer: "Timer",
+      test: "TEST",
+      testSound: "Test sound",
+      timerDefaultName: "Timer",
+      timerMeta: "{timers} {timerWord} - {running} running",
+      timerPlural: "timers",
+      timerSingular: "timer",
+      timerShortcutName: "controls",
+      volumeLabel: "Volume",
+    },
+    nl: {
+      addStopwatch: "+ Stopwatch",
+      addTimer: "+ Timer",
+      appearance: "Weergave",
+      clear: "Wissen",
+      complete: "Klaar",
+      confirmNewSession: "Nieuwe sessie starten en de huidige event log wissen? Exporteer eerst als je deze data nodig hebt.",
+      confirmRemoveTimer: "Deze timer verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      confirmResetEventLog: "Event log resetten en een schone sessie starten? Dit verwijdert alle opgenomen events. Exporteer eerst als je deze data nodig hebt.",
+      countdownHeading: "Timers",
+      eventCount: "{count} {eventWord} opgenomen",
+      eventSingular: "event",
+      eventPlural: "events",
+      eventTimerComplete: "timer klaar",
+      eventTimerReset: "timer teruggezet",
+      eventTimerStart: "timer gestart",
+      eventTimerStop: "timer gestopt",
+      exit: "Sluiten",
+      exitClockFullscreen: "Sluit klok volledig scherm",
+      exitFullscreen: "Sluit timer volledig scherm",
+      exportCsv: "Exporteer complete sessie -> CSV",
+      fullscreen: "VOLLEDIG SCHERM",
+      fullscreenTimerControls: "Timerbediening in volledig scherm",
+      globalStopwatchControls: "Algemene stopwatchbediening",
+      globalTimerControls: "Algemene timerbediening",
+      idle: "Klaar",
+      language: "Taal",
+      lap: "RONDE",
+      lapAll: "ALLE RONDES",
+      lapShortcut: "Alle rondes",
+      laps: "Rondes",
+      newSession: "Nieuwe sessie",
+      noEvents: "Nog geen events",
+      noLaps: "Nog geen rondes",
+      navStopwatch: "Stopwatch",
+      navTimer: "Timer",
+      openClockFullscreen: "Open klok volledig scherm",
+      overallVolumeLabel: "Algemeen volume",
+      paused: "Gestopt",
+      pause: "PAUZE",
+      reset: "RESET",
+      resetEventLog: "Eventlog resetten",
+      removeTimer: "VERWIJDER",
+      restart: "HERSTART",
+      running: "Loopt",
+      sessionLogHeading: "Sessielog",
+      sessionMeta: "{stopwatches} {stopwatchWord} - {running} actief - {events} {eventWord}",
+      setKey: "Kies toets",
+      shortcut: "Toets",
+      shortcutPressKey: "Druk een toets...",
+      soundBeep: "Beep",
+      soundBell: "Bel",
+      soundChime: "Chime",
+      soundLabel: "Geluid",
+      soundMute: "Stil",
+      soundRing: "Tring",
+      skipLink: "Ga naar timers",
+      spaceShortcut: "Alles starten / stoppen",
+      start: "START",
+      startAll: "START ALLES",
+      startAllTimers: "START ALLE TIMERS",
+      stop: "STOP",
+      stopAll: "STOP ALLES",
+      stopAllTimers: "STOP ALLE TIMERS",
+      pauseAllTimers: "PAUZEER ALLE TIMERS",
+      stopwatchDefaultName: "Stopwatch",
+      stopwatchHeading: "Stopwatches",
+      stopwatchPlural: "stopwatches",
+      stopwatchSingular: "stopwatch",
+      tableElapsed: "Verstreken",
+      tableEvent: "Event",
+      tableLap: "Ronde",
+      tableTime: "Tijd",
+      tableTimer: "Timer",
+      test: "TEST",
+      testSound: "Test geluid",
+      timerDefaultName: "Timer",
+      timerMeta: "{timers} {timerWord} - {running} actief",
+      timerPlural: "timers",
+      timerSingular: "timer",
+      timerShortcutName: "bediening",
+      volumeLabel: "Volume",
+    },
+    de: {
+      addStopwatch: "+ Stoppuhr",
+      addTimer: "+ Timer",
+      appearance: "Darstellung",
+      clear: "Löschen",
+      complete: "Fertig",
+      confirmNewSession: "Neue Sitzung starten und das aktuelle Eventlog löschen? Exportiere zuerst, wenn du diese Daten brauchst.",
+      confirmRemoveTimer: "Diesen Timer löschen? Das kann nicht rückgängig gemacht werden.",
+      confirmResetEventLog: "Eventlog zurücksetzen und eine saubere Sitzung starten? Das entfernt alle aufgezeichneten Events. Exportiere zuerst, wenn du diese Daten brauchst.",
+      countdownHeading: "Timer",
+      eventCount: "{count} {eventWord} aufgezeichnet",
+      eventSingular: "Event",
+      eventPlural: "Events",
+      eventTimerComplete: "Timer abgelaufen",
+      eventTimerReset: "Timer zurückgesetzt",
+      eventTimerStart: "Timer gestartet",
+      eventTimerStop: "Timer gestoppt",
+      exit: "Schließen",
+      exitClockFullscreen: "Uhr im Vollbild schließen",
+      exitFullscreen: "Timer-Vollbild schließen",
+      exportCsv: "Komplette Sitzung -> CSV",
+      fullscreen: "VOLLBILD",
+      fullscreenTimerControls: "Timer-Steuerung im Vollbild",
+      globalStopwatchControls: "Globale Stoppuhr-Steuerung",
+      globalTimerControls: "Globale Timer-Steuerung",
+      idle: "Bereit",
+      language: "Sprache",
+      lap: "RUNDE",
+      lapAll: "ALLE RUNDEN",
+      lapShortcut: "Alle Runden",
+      laps: "Runden",
+      newSession: "Neue Sitzung",
+      noEvents: "Noch keine Events",
+      noLaps: "Noch keine Runden",
+      navStopwatch: "Stoppuhr",
+      navTimer: "Timer",
+      openClockFullscreen: "Uhr im Vollbild öffnen",
+      overallVolumeLabel: "Gesamtlautstärke",
+      paused: "Gestoppt",
+      pause: "PAUSE",
+      reset: "RESET",
+      resetEventLog: "Eventlog zurücksetzen",
+      removeTimer: "LÖSCHEN",
+      restart: "NEUSTART",
+      running: "Läuft",
+      sessionLogHeading: "Sitzungsprotokoll",
+      sessionMeta: "{stopwatches} {stopwatchWord} - {running} aktiv - {events} {eventWord}",
+      setKey: "Taste wählen",
+      shortcut: "Taste",
+      shortcutPressKey: "Taste drücken...",
+      soundBeep: "Beep",
+      soundBell: "Glocke",
+      soundChime: "Chime",
+      soundLabel: "Klang",
+      soundMute: "Stumm",
+      soundRing: "Klingeln",
+      skipLink: "Zu Timern springen",
+      spaceShortcut: "Alle starten / stoppen",
+      start: "STARTEN",
+      startAll: "ALLE STARTEN",
+      startAllTimers: "ALLE TIMER STARTEN",
+      stop: "STOPPEN",
+      stopAll: "ALLE STOPPEN",
+      stopAllTimers: "ALLE TIMER STOPPEN",
+      pauseAllTimers: "ALLE TIMER PAUSIEREN",
+      stopwatchDefaultName: "Stoppuhr",
+      stopwatchHeading: "Stoppuhren",
+      stopwatchPlural: "Stoppuhren",
+      stopwatchSingular: "Stoppuhr",
+      tableElapsed: "Verstrichen",
+      tableEvent: "Event",
+      tableLap: "Runde",
+      tableTime: "Zeit",
+      tableTimer: "Timer",
+      test: "TEST",
+      testSound: "Klang testen",
+      timerDefaultName: "Timer",
+      timerMeta: "{timers} {timerWord} - {running} aktiv",
+      timerPlural: "Timer",
+      timerSingular: "Timer",
+      timerShortcutName: "Steuerung",
+      volumeLabel: "Lautstärke",
+    },
+  };
+
+  const THEME_LABELS = {
+    light: { en: "Light mode", nl: "Lichte modus", de: "Heller Modus" },
+    auto: { en: "Match system", nl: "Volg systeem", de: "System folgen" },
+    dark: { en: "Dark mode", nl: "Donkere modus", de: "Dunkler Modus" },
+  };
+
+  const LANGUAGE_LABELS = {
+    nl: "Nederlands",
+    en: "English",
+    de: "Deutsch",
   };
 
   const escapeMap = {
@@ -44,8 +306,12 @@
   let state = loadState();
   let saveTimer = 0;
   let audioContext = null;
+  let activeAlarmMaster = null;
+  let activeAlarmTimeout = 0;
+  let activeAlarmRequest = 0;
   let capturingStopwatchId = null;
-  let pendingExpiredCountdownEvent = false;
+  let pendingExpiredCountdownEvents = [];
+  let activeFullscreenTimerId = null;
   let pseudoFullscreenActive = false;
 
   function init() {
@@ -53,19 +319,23 @@
     normalizeLoadedState();
     bindEvents();
     applyTheme(state.theme);
+    applyLanguage(state.language);
     render();
     updateClock();
     setInterval(updateClock, 250);
     requestAnimationFrame(animationLoop);
     registerServiceWorker();
 
-    if (pendingExpiredCountdownEvent) {
-      appendEvent({
-        stopwatchId: "countdown",
-        stopwatchName: state.countdown.name,
-        eventType: "countdown_complete",
-        elapsedMs: state.countdown.durationMs,
+    if (pendingExpiredCountdownEvents.length) {
+      pendingExpiredCountdownEvents.forEach((countdown) => {
+        appendEvent({
+          stopwatchId: countdown.id,
+          stopwatchName: countdown.name,
+          eventType: "countdown_complete",
+          elapsedMs: countdown.durationMs,
+        });
       });
+      pendingExpiredCountdownEvents = [];
       render();
       scheduleSave();
     }
@@ -76,9 +346,13 @@
     elements.metaTheme = document.querySelector('meta[name="theme-color"]');
     elements.headerMenuLinks = Array.from(document.querySelectorAll(".menu-link"));
     elements.viewPanels = PANEL_IDS.map((id) => document.getElementById(id)).filter(Boolean);
+    elements.liveClockBtn = document.getElementById("liveClockBtn");
     elements.liveClock = document.getElementById("liveClock");
     elements.newSessionBtn = document.getElementById("newSessionBtn");
     elements.themeButtons = Array.from(document.querySelectorAll(".theme-option"));
+    elements.languageButtons = Array.from(document.querySelectorAll(".language-option"));
+    elements.i18nText = Array.from(document.querySelectorAll("[data-i18n]"));
+    elements.i18nAria = Array.from(document.querySelectorAll("[data-i18n-aria]"));
     elements.sessionMeta = document.getElementById("sessionMeta");
     elements.startAllBtn = document.getElementById("startAllBtn");
     elements.stopAllBtn = document.getElementById("stopAllBtn");
@@ -86,19 +360,15 @@
     elements.addStopwatchBtn = document.getElementById("addStopwatchBtn");
     elements.stopwatchList = document.getElementById("stopwatchList");
     elements.countdownSection = document.querySelector(".countdown-section");
-    elements.countdownName = document.getElementById("countdownName");
-    elements.countdownHours = document.getElementById("countdownHours");
-    elements.countdownMinutes = document.getElementById("countdownMinutes");
-    elements.countdownSeconds = document.getElementById("countdownSeconds");
-    elements.countdownDisplay = document.getElementById("countdownDisplay");
+    elements.countdownMeta = document.getElementById("countdownMeta");
     elements.countdownStatus = document.getElementById("countdownStatus");
-    elements.countdownStartBtn = document.getElementById("countdownStartBtn");
-    elements.countdownResetBtn = document.getElementById("countdownResetBtn");
-    elements.countdownFullscreenBtn = document.getElementById("countdownFullscreenBtn");
-    elements.soundSelect = document.getElementById("soundSelect");
+    elements.startAllTimersBtn = document.getElementById("startAllTimersBtn");
+    elements.pauseAllTimersBtn = document.getElementById("pauseAllTimersBtn");
+    elements.stopAllTimersBtn = document.getElementById("stopAllTimersBtn");
+    elements.addTimerBtn = document.getElementById("addTimerBtn");
+    elements.countdownList = document.getElementById("countdownList");
     elements.volumeInput = document.getElementById("volumeInput");
     elements.volumeValue = document.getElementById("volumeValue");
-    elements.testSoundBtn = document.getElementById("testSoundBtn");
     elements.shortcutMessage = document.getElementById("shortcutMessage");
     elements.resetEventLogBtn = document.getElementById("resetEventLogBtn");
     elements.exportCsvBtn = document.getElementById("exportCsvBtn");
@@ -106,9 +376,15 @@
     elements.eventRows = document.getElementById("eventRows");
     elements.fullscreenCountdown = document.getElementById("fullscreenCountdown");
     elements.exitFullscreenBtn = document.getElementById("exitFullscreenBtn");
+    elements.fullscreenToggleBtn = document.getElementById("fullscreenToggleBtn");
+    elements.fullscreenResetBtn = document.getElementById("fullscreenResetBtn");
     elements.fullscreenCountdownName = document.getElementById("fullscreenCountdownName");
     elements.fullscreenCountdownDisplay = document.getElementById("fullscreenCountdownDisplay");
     elements.fullscreenProgressBar = document.getElementById("fullscreenProgressBar");
+    elements.fullscreenClock = document.getElementById("fullscreenClock");
+    elements.exitClockFullscreenBtn = document.getElementById("exitClockFullscreenBtn");
+    elements.fullscreenClockTime = document.getElementById("fullscreenClockTime");
+    elements.fullscreenClockDate = document.getElementById("fullscreenClockDate");
   }
 
   function loadState() {
@@ -129,26 +405,34 @@
       sessionId: makeId("session"),
       createdAt: new Date().toISOString(),
       theme: localStorage.getItem(THEME_KEY) || "auto",
+      language: localStorage.getItem(LANGUAGE_KEY) || getPreferredLanguage(),
       stopwatches: [0, 1, 2].map((index) =>
         createStopwatch(`Stopwatch ${index + 1}`, DEFAULT_COLORS[index], DEFAULT_SHORTCUTS[index])
       ),
-      countdown: {
-        name: "Experiment",
-        hours: 0,
-        minutes: 0,
-        seconds: 5,
-        durationMs: 5000,
-        remainingMs: 5000,
-        status: "idle",
-        startedAtPerf: null,
-        startedAtEpoch: null,
-        endAtPerf: null,
-        endAtEpoch: null,
-        sound: "beep",
+      countdowns: [createCountdown("Timer 1", 0, 0, 5)],
+      timerSettings: {
         volume: 100,
-        shortcut: null,
       },
       eventLog: [],
+    };
+  }
+
+  function createCountdown(name, hours, minutes, seconds) {
+    const durationMs = durationFromParts(hours, minutes, seconds);
+    return {
+      id: makeId("timer"),
+      name,
+      hours,
+      minutes,
+      seconds,
+      durationMs,
+      remainingMs: durationMs,
+      status: "idle",
+      startedAtPerf: null,
+      startedAtEpoch: null,
+      endAtPerf: null,
+      endAtEpoch: null,
+      sound: "beep",
     };
   }
 
@@ -173,6 +457,7 @@
     const nowPerfValue = performance.now();
 
     state.theme = ["auto", "dark", "light"].includes(state.theme) ? state.theme : "auto";
+    state.language = LANGUAGE_VALUES.includes(state.language) ? state.language : getPreferredLanguage();
     state.sessionId = typeof state.sessionId === "string" ? state.sessionId : makeId("session");
     state.createdAt = typeof state.createdAt === "string" ? state.createdAt : new Date().toISOString();
     state.eventLog = Array.isArray(state.eventLog) ? state.eventLog.map(normalizeEvent) : [];
@@ -213,7 +498,15 @@
       return normalized;
     });
 
-    state.countdown = normalizeCountdown(state.countdown || createDefaultState().countdown);
+    const savedCountdowns = Array.isArray(state.countdowns) && state.countdowns.length
+      ? state.countdowns
+      : [state.countdown || createCountdown("Timer 1", 0, 0, 5)];
+    const legacyTimerSettings = normalizeTimerSettings(state.timerSettings || state.countdown || {});
+    state.countdowns = savedCountdowns.map((countdown, index) => (
+      normalizeCountdown(countdown, index, legacyTimerSettings.sound)
+    ));
+    state.timerSettings = { volume: legacyTimerSettings.volume };
+    delete state.countdown;
     scheduleSave();
   }
 
@@ -248,10 +541,11 @@
     };
   }
 
-  function normalizeCountdown(saved) {
-    const fallback = createDefaultState().countdown;
+  function normalizeCountdown(saved, index, fallbackSound) {
+    const fallback = createCountdown(`Timer ${index + 1}`, 0, 0, index === 0 ? 5 : 60);
     const countdown = { ...fallback, ...saved };
-    countdown.name = String(countdown.name || "Experiment");
+    countdown.id = typeof countdown.id === "string" ? countdown.id : makeId("timer");
+    countdown.name = String(countdown.name || `Timer ${index + 1}`);
     countdown.hours = clamp(Math.round(toSafeNumber(countdown.hours)), 0, 99);
     countdown.minutes = clamp(Math.round(toSafeNumber(countdown.minutes)), 0, 59);
     countdown.seconds = clamp(Math.round(toSafeNumber(countdown.seconds)), 0, 59);
@@ -260,9 +554,7 @@
     countdown.status = ["idle", "running", "paused", "complete"].includes(countdown.status)
       ? countdown.status
       : "idle";
-    countdown.sound = ["beep", "chime", "bell", "mute"].includes(countdown.sound) ? countdown.sound : "beep";
-    countdown.volume = clamp(Math.round(toSafeNumber(countdown.volume, 100)), 0, 100);
-
+    countdown.sound = SOUND_VALUES.includes(countdown.sound) ? countdown.sound : fallbackSound;
     if (countdown.status === "running") {
       const remaining = Math.max(0, toSafeNumber(countdown.endAtEpoch) - Date.now());
       if (remaining <= 0) {
@@ -272,7 +564,11 @@
         countdown.startedAtEpoch = null;
         countdown.endAtPerf = null;
         countdown.endAtEpoch = null;
-        pendingExpiredCountdownEvent = true;
+        pendingExpiredCountdownEvents.push({
+          id: countdown.id,
+          name: countdown.name,
+          durationMs: countdown.durationMs,
+        });
       } else {
         countdown.remainingMs = remaining;
         countdown.startedAtPerf = performance.now();
@@ -287,10 +583,19 @@
       countdown.endAtEpoch = null;
       if (countdown.status === "idle") {
         countdown.remainingMs = countdown.durationMs;
+      } else if (countdown.status === "complete") {
+        countdown.remainingMs = 0;
       }
     }
 
     return countdown;
+  }
+
+  function normalizeTimerSettings(saved) {
+    return {
+      sound: SOUND_VALUES.includes(saved.sound) ? saved.sound : "beep",
+      volume: clamp(Math.round(toSafeNumber(saved.volume, 100)), 0, 100),
+    };
   }
 
   function bindEvents() {
@@ -302,56 +607,50 @@
         scheduleSave();
       });
     });
+    elements.languageButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyLanguage(button.dataset.languageValue);
+        localStorage.setItem(LANGUAGE_KEY, state.language);
+        render();
+        scheduleSave();
+      });
+    });
     elements.headerMenuLinks.forEach((link) => {
       link.addEventListener("click", () => setActiveMenuTarget(link.dataset.menuTarget, true));
     });
 
+    elements.liveClockBtn.addEventListener("click", enterClockFullscreen);
     elements.newSessionBtn.addEventListener("click", createNewSession);
     elements.addStopwatchBtn.addEventListener("click", addStopwatch);
     elements.startAllBtn.addEventListener("click", startAllStopwatches);
     elements.stopAllBtn.addEventListener("click", stopAllStopwatches);
     elements.lapAllBtn.addEventListener("click", lapAllStopwatches);
+    elements.startAllTimersBtn.addEventListener("click", startAllCountdowns);
+    elements.pauseAllTimersBtn.addEventListener("click", pauseAllCountdowns);
+    elements.stopAllTimersBtn.addEventListener("click", stopAndResetAllCountdowns);
+    elements.addTimerBtn.addEventListener("click", addCountdown);
     elements.resetEventLogBtn.addEventListener("click", resetEventLog);
     elements.exportCsvBtn.addEventListener("click", exportCsv);
 
     elements.stopwatchList.addEventListener("click", onStopwatchClick);
     elements.stopwatchList.addEventListener("input", onStopwatchInput);
     elements.stopwatchList.addEventListener("toggle", onLapToggle, true);
-
-    elements.countdownName.addEventListener("input", () => {
-      state.countdown.name = elements.countdownName.value.trim() || "Experiment";
-      updateCountdownDisplays();
-      scheduleSave();
-    });
-
-    [elements.countdownHours, elements.countdownMinutes, elements.countdownSeconds].forEach((input) => {
-      input.addEventListener("focus", () => input.select());
-      input.addEventListener("input", updateCountdownDurationFromInputs);
-      input.addEventListener("blur", () => {
-        updateCountdownDurationFromInputs();
-        updateCountdownDisplays(true);
-      });
-      input.addEventListener("keydown", onCountdownSegmentKeydown);
-    });
-
-    elements.countdownStartBtn.addEventListener("click", startOrPauseCountdown);
-    elements.countdownResetBtn.addEventListener("click", resetCountdown);
-    elements.countdownFullscreenBtn.addEventListener("click", enterCountdownFullscreen);
+    elements.countdownList.addEventListener("click", onCountdownClick);
+    elements.countdownList.addEventListener("input", onCountdownInput);
+    elements.countdownList.addEventListener("change", onCountdownChange);
+    elements.countdownList.addEventListener("focusin", onCountdownFocusIn);
+    elements.countdownList.addEventListener("focusout", onCountdownFocusOut);
+    elements.countdownList.addEventListener("keydown", onCountdownSegmentKeydown);
     elements.exitFullscreenBtn.addEventListener("click", exitCountdownFullscreen);
-
-    elements.soundSelect.addEventListener("change", () => {
-      state.countdown.sound = elements.soundSelect.value;
-      scheduleSave();
-    });
+    elements.exitClockFullscreenBtn.addEventListener("click", exitClockFullscreen);
+    elements.fullscreenToggleBtn.addEventListener("click", onFullscreenCountdownToggle);
+    elements.fullscreenResetBtn.addEventListener("click", onFullscreenCountdownReset);
 
     elements.volumeInput.addEventListener("input", () => {
-      state.countdown.volume = clamp(Math.round(toSafeNumber(elements.volumeInput.value, 100)), 0, 100);
-      elements.volumeValue.textContent = `${state.countdown.volume}%`;
+      state.timerSettings.volume = clamp(Math.round(toSafeNumber(elements.volumeInput.value, 100)), 0, 100);
+      elements.volumeValue.textContent = `${state.timerSettings.volume}%`;
+      elements.volumeInput.style.setProperty("--volume-progress", `${state.timerSettings.volume}%`);
       scheduleSave();
-    });
-
-    elements.testSoundBtn.addEventListener("click", () => {
-      playCountdownSound();
     });
 
     document.addEventListener("keydown", onDocumentKeydown);
@@ -431,6 +730,79 @@
     if (stopwatch) {
       stopwatch.lapsOpen = event.target.open;
       scheduleSave();
+    }
+  }
+
+  function onCountdownClick(event) {
+    const button = event.target.closest("[data-countdown-action]");
+    if (!button) {
+      return;
+    }
+
+    const countdown = getCountdown(button.dataset.timerId);
+    if (!countdown) {
+      return;
+    }
+
+    const action = button.dataset.countdownAction;
+    if (action === "toggle") {
+      startOrStopCountdown(countdown);
+    } else if (action === "stop") {
+      resetCountdown(countdown);
+    } else if (action === "remove") {
+      removeCountdown(countdown);
+    } else if (action === "fullscreen") {
+      enterCountdownFullscreen(countdown);
+    } else if (action === "test-sound") {
+      playCountdownSound(countdown);
+    }
+  }
+
+  function onCountdownInput(event) {
+    const target = event.target;
+    const countdown = getCountdown(target.dataset.timerId);
+    if (!countdown) {
+      return;
+    }
+
+    if (target.matches(".countdown-name-input")) {
+      countdown.name = target.value.trim() || getDefaultCountdownName(countdown);
+      updateCountdownTimerDisplays(countdown);
+      scheduleSave();
+    } else if (target.matches(".countdown-segment-input")) {
+      updateCountdownDurationFromInputs(countdown);
+    }
+  }
+
+  function onCountdownChange(event) {
+    const target = event.target;
+    if (!target.matches(".countdown-sound-select")) {
+      return;
+    }
+
+    const countdown = getCountdown(target.dataset.timerId);
+    if (countdown) {
+      countdown.sound = SOUND_VALUES.includes(target.value) ? target.value : "beep";
+      scheduleSave();
+    }
+  }
+
+  function onCountdownFocusIn(event) {
+    if (event.target.matches(".countdown-segment-input")) {
+      event.target.select();
+    }
+  }
+
+  function onCountdownFocusOut(event) {
+    const target = event.target;
+    if (!target.matches(".countdown-segment-input")) {
+      return;
+    }
+
+    const countdown = getCountdown(target.dataset.timerId);
+    if (countdown) {
+      updateCountdownDurationFromInputs(countdown);
+      updateCountdownTimerDisplays(countdown, true);
     }
   }
 
@@ -707,9 +1079,39 @@
     scheduleSave();
   }
 
+  function addCountdown() {
+    const number = state.countdowns.length + 1;
+    const countdown = createCountdown(`${t("timerDefaultName")} ${number}`, 0, 1, 0);
+    state.countdowns.push(countdown);
+    render();
+    scheduleSave();
+
+    requestAnimationFrame(() => {
+      const row = getCountdownRow(countdown.id);
+      const nameInput = row ? row.querySelector(".countdown-name-input") : null;
+      if (nameInput) {
+        nameInput.focus();
+        nameInput.select();
+      }
+    });
+  }
+
+  function removeCountdown(countdown) {
+    if (!countdown || state.countdowns.length <= 1 || !window.confirm(t("confirmRemoveTimer"))) {
+      return;
+    }
+
+    if (activeFullscreenTimerId === countdown.id) {
+      exitCountdownFullscreen();
+    }
+    state.countdowns = state.countdowns.filter((item) => item.id !== countdown.id);
+    render();
+    scheduleSave();
+  }
+
   function createNewSession() {
     const hasEvents = state.eventLog.length > 0;
-    if (hasEvents && !window.confirm("Start a new session and clear the current event log? Export first if you need this data.")) {
+    if (hasEvents && !window.confirm(t("confirmNewSession"))) {
       return;
     }
 
@@ -721,9 +1123,7 @@
       return;
     }
 
-    const confirmed = window.confirm(
-      "Reset the event log and start a clean session? This removes all recorded events. Export first if you need this data."
-    );
+    const confirmed = window.confirm(t("confirmResetEventLog"));
     if (!confirmed) {
       return;
     }
@@ -743,24 +1143,28 @@
     state.sessionId = makeId("session");
     state.createdAt = new Date().toISOString();
     state.eventLog = [];
-    resetCountdown(false);
+    state.countdowns.forEach((countdown) => resetCountdown(countdown, false, false));
+    activeFullscreenTimerId = null;
     render();
     persistNow();
   }
 
-  function startOrPauseCountdown() {
-    if (state.countdown.status === "running") {
-      pauseCountdown();
+  function startOrStopCountdown(countdown) {
+    if (countdown.status === "running") {
+      stopCountdown(countdown);
     } else {
-      startCountdown();
+      startCountdown(countdown);
     }
   }
 
-  function startCountdown() {
-    const countdown = state.countdown;
+  function startCountdown(countdown, shouldRender = true) {
+    if (!countdown || countdown.status === "running") {
+      return false;
+    }
+
     const remainingMs = countdown.status === "paused" ? countdown.remainingMs : countdown.durationMs;
     if (remainingMs <= 0) {
-      return;
+      return false;
     }
 
     ensureAudioContext().catch(() => {});
@@ -772,23 +1176,26 @@
     countdown.endAtEpoch = Date.now() + remainingMs;
 
     appendEvent({
-      stopwatchId: "countdown",
+      stopwatchId: countdown.id,
       stopwatchName: countdown.name,
       eventType: "countdown_start",
       elapsedMs: countdown.durationMs - remainingMs,
     });
 
-    renderCountdown();
-    scheduleSave();
+    if (shouldRender) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+    return true;
   }
 
-  function pauseCountdown() {
-    const countdown = state.countdown;
-    if (countdown.status !== "running") {
-      return;
+  function stopCountdown(countdown, shouldRender = true) {
+    if (!countdown || countdown.status !== "running") {
+      return false;
     }
 
-    countdown.remainingMs = getCountdownRemaining();
+    countdown.remainingMs = getCountdownRemaining(countdown);
     countdown.status = "paused";
     countdown.startedAtPerf = null;
     countdown.startedAtEpoch = null;
@@ -796,19 +1203,64 @@
     countdown.endAtEpoch = null;
 
     appendEvent({
-      stopwatchId: "countdown",
+      stopwatchId: countdown.id,
       stopwatchName: countdown.name,
-      eventType: "countdown_pause",
+      eventType: "countdown_stop",
       elapsedMs: countdown.durationMs - countdown.remainingMs,
     });
 
+    if (shouldRender) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+    return true;
+  }
+
+  function startAllCountdowns() {
+    let changed = false;
+    state.countdowns.forEach((countdown) => {
+      changed = startCountdown(countdown, false) || changed;
+    });
+
+    if (changed) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+  }
+
+  function pauseAllCountdowns() {
+    let changed = false;
+    state.countdowns.forEach((countdown) => {
+      changed = stopCountdown(countdown, false) || changed;
+    });
+
+    if (changed) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+  }
+
+  function stopAndResetAllCountdowns() {
+    const changed = state.countdowns.some((countdown) => countdown.status !== "idle");
+    if (!changed) {
+      return;
+    }
+
+    state.countdowns.forEach((countdown) => resetCountdown(countdown, true, false));
     renderCountdown();
+    renderEventLog();
     scheduleSave();
   }
 
-  function resetCountdown(shouldLog = true) {
-    const countdown = state.countdown;
-    const elapsedMs = countdown.durationMs - getCountdownRemaining();
+  function resetCountdown(countdown, shouldLog = true, shouldRender = true) {
+    if (!countdown) {
+      return false;
+    }
+
+    const elapsedMs = countdown.durationMs - getCountdownRemaining(countdown);
     countdown.status = "idle";
     countdown.remainingMs = countdown.durationMs;
     countdown.startedAtPerf = null;
@@ -818,21 +1270,28 @@
 
     if (shouldLog) {
       appendEvent({
-        stopwatchId: "countdown",
+        stopwatchId: countdown.id,
         stopwatchName: countdown.name,
         eventType: "countdown_reset",
         elapsedMs,
       });
     }
 
-    renderCountdown();
-    scheduleSave();
+    if (activeFullscreenTimerId === countdown.id) {
+      updateFullscreenCountdown();
+    }
+
+    if (shouldRender) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+    return true;
   }
 
-  function completeCountdown() {
-    const countdown = state.countdown;
-    if (countdown.status !== "running") {
-      return;
+  function completeCountdown(countdown, shouldRender = true) {
+    if (!countdown || countdown.status !== "running") {
+      return false;
     }
 
     countdown.status = "complete";
@@ -843,62 +1302,84 @@
     countdown.endAtEpoch = null;
 
     appendEvent({
-      stopwatchId: "countdown",
+      stopwatchId: countdown.id,
       stopwatchName: countdown.name,
       eventType: "countdown_complete",
       elapsedMs: countdown.durationMs,
     });
 
-    playCountdownSound();
-    renderCountdown();
-    scheduleSave();
+    playCountdownSound(countdown);
+    if (shouldRender) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
+    }
+    return true;
   }
 
   function onCountdownSegmentKeydown(event) {
-    if (state.countdown.status === "running") {
+    const target = event.target;
+    if (!target.matches(".countdown-segment-input")) {
+      return;
+    }
+
+    const countdown = getCountdown(target.dataset.timerId);
+    if (!countdown || countdown.status === "running") {
       return;
     }
 
     if (event.key === "Enter") {
       event.preventDefault();
-      event.target.blur();
+      target.blur();
       return;
     }
 
     if (event.key === "Escape") {
       event.preventDefault();
-      event.target.value = event.target.dataset.committedValue || "00";
-      updateCountdownDurationFromInputs();
-      event.target.blur();
+      target.value = target.dataset.committedValue || "00";
+      updateCountdownDurationFromInputs(countdown);
+      target.blur();
       return;
     }
 
     if (event.key === "ArrowUp" || event.key === "ArrowDown") {
       event.preventDefault();
-      nudgeCountdownSegment(event.target, event.key === "ArrowUp" ? 1 : -1, event.shiftKey ? 10 : 1);
+      nudgeCountdownSegment(target, countdown, event.key === "ArrowUp" ? 1 : -1, event.shiftKey ? 10 : 1);
     }
   }
 
-  function updateCountdownDurationFromInputs() {
-    const hours = readCountdownSegment(elements.countdownHours, 99);
-    const minutes = readCountdownSegment(elements.countdownMinutes, 59);
-    const seconds = readCountdownSegment(elements.countdownSeconds, 59);
+  function updateCountdownDurationFromInputs(countdown) {
+    const row = getCountdownRow(countdown.id);
+    if (!row || countdown.status === "running") {
+      return false;
+    }
+
+    const hours = readCountdownSegment(row.querySelector("[data-segment='hours']"), 99);
+    const minutes = readCountdownSegment(row.querySelector("[data-segment='minutes']"), 59);
+    const seconds = readCountdownSegment(row.querySelector("[data-segment='seconds']"), 59);
     const durationMs = durationFromParts(hours, minutes, seconds);
 
-    state.countdown.hours = hours;
-    state.countdown.minutes = minutes;
-    state.countdown.seconds = seconds;
-    state.countdown.durationMs = durationMs;
+    countdown.hours = hours;
+    countdown.minutes = minutes;
+    countdown.seconds = seconds;
+    countdown.durationMs = durationMs;
+    countdown.status = "idle";
+    countdown.remainingMs = durationMs;
+    countdown.startedAtPerf = null;
+    countdown.startedAtEpoch = null;
+    countdown.endAtPerf = null;
+    countdown.endAtEpoch = null;
 
-    if (state.countdown.status !== "running") {
-      state.countdown.status = "idle";
-      state.countdown.remainingMs = durationMs;
-      updateCountdownDisplays();
-    }
+    updateCountdownTimerDisplays(countdown);
     scheduleSave();
+    return true;
   }
 
   function readCountdownSegment(input, max) {
+    if (!input) {
+      return 0;
+    }
+
     const cleanValue = input.value.replace(/\D/g, "").slice(0, 2);
     if (input.value !== cleanValue) {
       input.value = cleanValue;
@@ -906,11 +1387,11 @@
     return clamp(Math.round(toSafeNumber(cleanValue)), 0, max);
   }
 
-  function nudgeCountdownSegment(input, direction, step) {
-    const max = input === elements.countdownHours ? 99 : 59;
+  function nudgeCountdownSegment(input, countdown, direction, step) {
+    const max = input.dataset.segment === "hours" ? 99 : 59;
     const current = readCountdownSegment(input, max);
     input.value = pad(clamp(current + (direction * step), 0, max));
-    updateCountdownDurationFromInputs();
+    updateCountdownDurationFromInputs(countdown);
     input.select();
   }
 
@@ -921,8 +1402,7 @@
     return Math.max(0, stopwatch.baseElapsedMs + (performance.now() - stopwatch.startedAtPerf));
   }
 
-  function getCountdownRemaining() {
-    const countdown = state.countdown;
+  function getCountdownRemaining(countdown) {
     if (countdown.status !== "running" || typeof countdown.endAtPerf !== "number") {
       return Math.max(0, countdown.remainingMs);
     }
@@ -953,29 +1433,35 @@
 
   function renderSessionMeta() {
     const running = state.stopwatches.filter((stopwatch) => stopwatch.status === "running").length;
-    elements.sessionMeta.textContent = `${state.stopwatches.length} stopwatches - ${running} running - ${state.eventLog.length} events`;
+    elements.sessionMeta.textContent = formatText("sessionMeta", {
+      stopwatches: state.stopwatches.length,
+      stopwatchWord: pluralWord(state.stopwatches.length, "stopwatchSingular", "stopwatchPlural"),
+      running,
+      events: state.eventLog.length,
+      eventWord: pluralWord(state.eventLog.length, "eventSingular", "eventPlural"),
+    });
   }
 
   function renderStopwatches() {
     elements.stopwatchList.innerHTML = state.stopwatches.map((stopwatch) => {
       const isCapturing = capturingStopwatchId === stopwatch.id;
-      const shortcutLabel = isCapturing ? "Press a key..." : stopwatch.shortcutLabel || "Set key";
+      const shortcutLabel = isCapturing ? t("shortcutPressKey") : stopwatch.shortcutLabel || t("setKey");
       const laps = stopwatch.laps.length
         ? stopwatch.laps.map((lap) => `
             <li class="lap-item">
-              <strong>Lap ${lap.lapNumber}</strong>
+              <strong>${escapeHtml(t("tableLap"))} ${lap.lapNumber}</strong>
               <span class="lap-time">${formatStopwatch(lap.elapsedMs)}</span>
               <span>Split ${formatStopwatch(lap.splitMs)}</span>
             </li>
           `).join("")
-        : `<li class="empty-state">No laps recorded</li>`;
+        : `<li class="empty-state">${escapeHtml(t("noLaps"))}</li>`;
 
       return `
         <article class="stopwatch-row" data-status="${escapeHtml(stopwatch.status)}" data-stopwatch-id="${escapeHtml(stopwatch.id)}" style="--stopwatch-accent: ${escapeHtml(stopwatch.color)}">
           <div class="stopwatch-meta">
             <span class="status-wrap">
               <span class="status-dot" aria-hidden="true"></span>
-              <span data-status-label="${escapeHtml(stopwatch.id)}">${STATUS_LABEL[stopwatch.status]}</span>
+              <span data-status-label="${escapeHtml(stopwatch.id)}">${escapeHtml(statusLabel(stopwatch.status))}</span>
             </span>
             <input
               class="stopwatch-name-input"
@@ -994,7 +1480,7 @@
               data-stopwatch-id="${escapeHtml(stopwatch.id)}"
             >
             <div class="stopwatch-shortcut" aria-label="${escapeHtml(stopwatch.name)} keyboard shortcut">
-              <span>Shortcut</span>
+              <span>${escapeHtml(t("shortcut"))}</span>
               <button
                 class="shortcut-key"
                 type="button"
@@ -1009,21 +1495,21 @@
                 data-shortcut-action="clear"
                 data-stopwatch-id="${escapeHtml(stopwatch.id)}"
                 ${stopwatch.shortcutCode ? "" : "disabled"}
-              >Clear</button>
+              >${escapeHtml(t("clear"))}</button>
             </div>
           </div>
 
           <output class="timer-display" data-time-id="${escapeHtml(stopwatch.id)}">${formatStopwatch(getStopwatchElapsed(stopwatch))}</output>
 
           <div class="timer-actions" role="group" aria-label="${escapeHtml(stopwatch.name)} controls">
-            <button class="button button-primary" type="button" data-stopwatch-action="start" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status === "running" ? "disabled" : ""}>START</button>
-            <button class="button button-secondary" type="button" data-stopwatch-action="lap" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>LAP</button>
-            <button class="button button-danger" type="button" data-stopwatch-action="stop" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>STOP</button>
-            <button class="button button-secondary" type="button" data-stopwatch-action="reset" data-stopwatch-id="${escapeHtml(stopwatch.id)}">RESET</button>
+            <button class="button button-primary" type="button" data-stopwatch-action="start" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status === "running" ? "disabled" : ""}>${escapeHtml(t("start"))}</button>
+            <button class="button button-secondary" type="button" data-stopwatch-action="lap" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>${escapeHtml(t("lap"))}</button>
+            <button class="button button-danger" type="button" data-stopwatch-action="stop" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.status !== "running" ? "disabled" : ""}>${escapeHtml(t("stop"))}</button>
+            <button class="button button-secondary" type="button" data-stopwatch-action="reset" data-stopwatch-id="${escapeHtml(stopwatch.id)}">${escapeHtml(t("reset"))}</button>
           </div>
 
           <details class="lap-history" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.lapsOpen ? "open" : ""}>
-            <summary>Laps (${stopwatch.laps.length})</summary>
+            <summary>${escapeHtml(t("laps"))} (${stopwatch.laps.length})</summary>
             <ol class="lap-list">${laps}</ol>
           </details>
         </article>
@@ -1032,34 +1518,80 @@
   }
 
   function renderCountdown() {
-    const countdown = state.countdown;
-    elements.countdownSection.dataset.status = countdown.status;
-    setValueUnlessFocused(elements.countdownName, countdown.name);
-    elements.countdownHours.disabled = countdown.status === "running";
-    elements.countdownMinutes.disabled = countdown.status === "running";
-    elements.countdownSeconds.disabled = countdown.status === "running";
-    setValueUnlessFocused(elements.soundSelect, countdown.sound);
-    setValueUnlessFocused(elements.volumeInput, String(countdown.volume));
-    elements.volumeValue.textContent = `${countdown.volume}%`;
+    elements.countdownList.innerHTML = state.countdowns.map(renderCountdownRow).join("");
+    setValueUnlessFocused(elements.volumeInput, String(state.timerSettings.volume));
+    elements.volumeValue.textContent = `${state.timerSettings.volume}%`;
+    elements.volumeInput.style.setProperty("--volume-progress", `${state.timerSettings.volume}%`);
+    renderCountdownSummary();
+    updateFullscreenCountdown();
+  }
 
-    elements.countdownStartBtn.textContent = countdown.status === "running"
-      ? "PAUSE"
-      : countdown.status === "complete"
-        ? "RESTART"
-        : "START";
-    elements.countdownStartBtn.disabled = countdown.durationMs <= 0 && countdown.status !== "running";
-    elements.countdownStatus.textContent = STATUS_LABEL[countdown.status] || titleCase(countdown.status);
-    updateCountdownDisplays(true);
-    renderEventLog();
+  function renderCountdownRow(countdown) {
+    const parts = countdownPartsFromMs(getCountdownRemaining(countdown));
+    const actionLabel = getCountdownActionLabel(countdown);
+    const actionDisabled = countdown.durationMs <= 0 && countdown.status !== "running";
+
+    return `
+      <article class="countdown-row" data-status="${escapeHtml(countdown.status)}" data-timer-id="${escapeHtml(countdown.id)}">
+        <div class="countdown-meta">
+          <span class="status-wrap">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span data-countdown-status="${escapeHtml(countdown.id)}">${escapeHtml(statusLabel(countdown.status))}</span>
+          </span>
+          <input
+            class="countdown-name-input"
+            type="text"
+            value="${escapeHtml(countdown.name)}"
+            aria-label="${escapeHtml(t("tableTimer"))} name"
+            data-timer-id="${escapeHtml(countdown.id)}"
+            spellcheck="false"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="countdown-display" role="group" aria-label="${escapeHtml(countdown.name)} duration">
+          <input class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="${escapeHtml(countdown.name)} hours" data-timer-id="${escapeHtml(countdown.id)}" data-segment="hours" data-committed-value="${pad(parts.hours)}" value="${pad(parts.hours)}" ${countdown.status === "running" ? "disabled" : ""}>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <input class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="${escapeHtml(countdown.name)} minutes" data-timer-id="${escapeHtml(countdown.id)}" data-segment="minutes" data-committed-value="${pad(parts.minutes)}" value="${pad(parts.minutes)}" ${countdown.status === "running" ? "disabled" : ""}>
+          <span class="time-separator" aria-hidden="true">:</span>
+          <input class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="${escapeHtml(countdown.name)} seconds" data-timer-id="${escapeHtml(countdown.id)}" data-segment="seconds" data-committed-value="${pad(parts.seconds)}" value="${pad(parts.seconds)}" ${countdown.status === "running" ? "disabled" : ""}>
+          <span class="time-format-label" aria-hidden="true">H:m:s</span>
+        </div>
+
+        <div class="countdown-sound">
+          <div class="countdown-sound-heading">
+            <span class="countdown-sound-label">${escapeHtml(t("soundLabel"))}</span>
+            <button class="button button-quiet countdown-sound-test" type="button" data-countdown-action="test-sound" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("test"))}</button>
+          </div>
+          <select class="countdown-sound-select" data-timer-id="${escapeHtml(countdown.id)}" aria-label="${escapeHtml(countdown.name)} ${escapeHtml(t("soundLabel"))}">
+            <option value="beep" ${countdown.sound === "beep" ? "selected" : ""}>${escapeHtml(t("soundBeep"))}</option>
+            <option value="chime" ${countdown.sound === "chime" ? "selected" : ""}>${escapeHtml(t("soundChime"))}</option>
+            <option value="bell" ${countdown.sound === "bell" ? "selected" : ""}>${escapeHtml(t("soundBell"))}</option>
+            <option value="ring" ${countdown.sound === "ring" ? "selected" : ""}>${escapeHtml(t("soundRing"))}</option>
+            <option value="mute" ${countdown.sound === "mute" ? "selected" : ""}>${escapeHtml(t("soundMute"))}</option>
+          </select>
+        </div>
+
+        <div class="countdown-actions" role="group" aria-label="${escapeHtml(countdown.name)} ${escapeHtml(t("timerShortcutName"))}">
+          <button class="button button-primary" type="button" data-countdown-action="toggle" data-timer-id="${escapeHtml(countdown.id)}" ${actionDisabled ? "disabled" : ""}>${escapeHtml(actionLabel)}</button>
+          <button class="button button-danger" type="button" data-countdown-action="stop" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("stop"))}</button>
+          <button class="button button-quiet" type="button" data-countdown-action="fullscreen" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("fullscreen"))}</button>
+          <button class="button button-quiet remove-timer-button" type="button" data-countdown-action="remove" data-timer-id="${escapeHtml(countdown.id)}" title="${escapeHtml(t("removeTimer"))}" ${state.countdowns.length <= 1 ? "disabled" : ""}>${escapeHtml(t("removeTimer"))}</button>
+        </div>
+      </article>
+    `;
   }
 
   function renderEventLog() {
     const count = state.eventLog.length;
-    elements.eventCount.textContent = `${count} ${count === 1 ? "event" : "events"} recorded`;
+    elements.eventCount.textContent = formatText("eventCount", {
+      count,
+      eventWord: pluralWord(count, "eventSingular", "eventPlural"),
+    });
     elements.resetEventLogBtn.disabled = count === 0;
 
     if (!count) {
-      elements.eventRows.innerHTML = `<tr><td colspan="5">No events yet</td></tr>`;
+      elements.eventRows.innerHTML = `<tr><td colspan="5">${escapeHtml(t("noEvents"))}</td></tr>`;
       return;
     }
 
@@ -1068,7 +1600,7 @@
       <tr>
         <td>${escapeHtml(formatEventTime(event.timestamp))}</td>
         <td>${escapeHtml(event.stopwatchName)}</td>
-        <td>${escapeHtml(event.eventType)}</td>
+        <td>${escapeHtml(eventLabel(event.eventType))}</td>
         <td>${escapeHtml(formatStopwatch(event.elapsedMs))}</td>
         <td>${event.lapNumber === "" ? "" : escapeHtml(String(event.lapNumber))}</td>
       </tr>
@@ -1111,24 +1643,101 @@
     });
   }
 
-  function updateCountdownDisplays(forceSegmentRender = false) {
-    const remainingMs = getCountdownRemaining();
-    const parts = countdownPartsFromMs(remainingMs);
-    const display = formatCountdown(remainingMs);
-    setCountdownSegment(elements.countdownHours, parts.hours, forceSegmentRender);
-    setCountdownSegment(elements.countdownMinutes, parts.minutes, forceSegmentRender);
-    setCountdownSegment(elements.countdownSeconds, parts.seconds, forceSegmentRender);
-    elements.fullscreenCountdownDisplay.textContent = display;
-    elements.fullscreenCountdownName.textContent = state.countdown.name.toUpperCase();
-    elements.fullscreenCountdown.classList.toggle("countdown-complete", state.countdown.status === "complete");
+  function renderCountdownSummary() {
+    const running = state.countdowns.filter((countdown) => countdown.status === "running").length;
+    const aggregateStatus = getCountdownAggregateStatus();
 
-    const duration = Math.max(1, state.countdown.durationMs);
-    const progress = state.countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
+    elements.countdownMeta.textContent = formatText("timerMeta", {
+      timers: state.countdowns.length,
+      timerWord: pluralWord(state.countdowns.length, "timerSingular", "timerPlural"),
+      running,
+    });
+    elements.countdownStatus.textContent = statusLabel(aggregateStatus);
+    elements.countdownSection.dataset.status = aggregateStatus;
+    elements.startAllTimersBtn.disabled = !state.countdowns.some(
+      (countdown) => countdown.status !== "running" && countdown.durationMs > 0
+    );
+    elements.pauseAllTimersBtn.disabled = running === 0;
+    elements.stopAllTimersBtn.disabled = !state.countdowns.some((countdown) => countdown.status !== "idle");
+  }
+
+  function updateCountdownTimerDisplays(countdown, forceSegmentRender = false) {
+    const row = getCountdownRow(countdown.id);
+    if (!row) {
+      return;
+    }
+
+    const remainingMs = getCountdownRemaining(countdown);
+    const parts = countdownPartsFromMs(remainingMs);
+    row.dataset.status = countdown.status;
+
+    const nameInput = row.querySelector(".countdown-name-input");
+    const status = row.querySelector(`[data-countdown-status="${cssEscape(countdown.id)}"]`);
+    const actionButton = row.querySelector("[data-countdown-action='toggle']");
+    const segmentInputs = Array.from(row.querySelectorAll(".countdown-segment-input"));
+
+    if (nameInput) {
+      setValueUnlessFocused(nameInput, countdown.name);
+    }
+    if (status) {
+      status.textContent = statusLabel(countdown.status);
+    }
+    if (actionButton) {
+      actionButton.textContent = getCountdownActionLabel(countdown);
+      actionButton.disabled = countdown.durationMs <= 0 && countdown.status !== "running";
+    }
+
+    segmentInputs.forEach((input) => {
+      input.disabled = countdown.status === "running";
+      if (input.dataset.segment === "hours") {
+        setCountdownSegment(input, parts.hours, forceSegmentRender);
+      } else if (input.dataset.segment === "minutes") {
+        setCountdownSegment(input, parts.minutes, forceSegmentRender);
+      } else if (input.dataset.segment === "seconds") {
+        setCountdownSegment(input, parts.seconds, forceSegmentRender);
+      }
+    });
+
+    renderCountdownSummary();
+    updateFullscreenCountdown();
+  }
+
+  function updateFullscreenCountdown() {
+    const countdown = getCountdown(activeFullscreenTimerId) || state.countdowns[0];
+    if (!countdown) {
+      elements.fullscreenCountdown.hidden = true;
+      return;
+    }
+
+    const remainingMs = getCountdownRemaining(countdown);
+    elements.fullscreenCountdownDisplay.textContent = formatCountdown(remainingMs);
+    elements.fullscreenCountdownName.textContent = countdown.name.toUpperCase();
+    elements.fullscreenToggleBtn.textContent = getCountdownActionLabel(countdown);
+    elements.fullscreenToggleBtn.disabled = countdown.durationMs <= 0 && countdown.status !== "running";
+    elements.fullscreenResetBtn.disabled = countdown.durationMs <= 0;
+    elements.fullscreenCountdown.classList.toggle("countdown-complete", countdown.status === "complete");
+
+    const duration = Math.max(1, countdown.durationMs);
+    const progress = countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
     elements.fullscreenProgressBar.style.transform = `scaleX(${progress})`;
   }
 
+  function onFullscreenCountdownToggle() {
+    const countdown = getCountdown(activeFullscreenTimerId) || state.countdowns[0];
+    if (countdown) {
+      startOrStopCountdown(countdown);
+    }
+  }
+
+  function onFullscreenCountdownReset() {
+    const countdown = getCountdown(activeFullscreenTimerId) || state.countdowns[0];
+    if (countdown) {
+      resetCountdown(countdown);
+    }
+  }
+
   function setCountdownSegment(input, value, forceSegmentRender) {
-    const max = input === elements.countdownHours ? 99 : 59;
+    const max = input.dataset.segment === "hours" ? 99 : 59;
     const text = pad(clamp(value, 0, max));
     input.dataset.committedValue = text;
     if (forceSegmentRender || document.activeElement !== input) {
@@ -1139,15 +1748,26 @@
   function animationLoop() {
     updateRunningStopwatchDisplays();
 
-    if (state.countdown.status === "running") {
-      state.countdown.remainingMs = getCountdownRemaining();
-      if (state.countdown.remainingMs <= 0) {
-        completeCountdown();
-      } else {
-        updateCountdownDisplays();
+    let countdownChanged = false;
+    state.countdowns.forEach((countdown) => {
+      if (countdown.status !== "running") {
+        return;
       }
+
+      countdown.remainingMs = getCountdownRemaining(countdown);
+      if (countdown.remainingMs <= 0) {
+        countdownChanged = completeCountdown(countdown, false) || countdownChanged;
+      } else {
+        updateCountdownTimerDisplays(countdown);
+      }
+    });
+
+    if (countdownChanged) {
+      renderCountdown();
+      renderEventLog();
+      scheduleSave();
     } else {
-      updateCountdownDisplays();
+      updateFullscreenCountdown();
     }
 
     requestAnimationFrame(animationLoop);
@@ -1155,9 +1775,13 @@
 
   function updateClock() {
     const date = new Date();
-    const clockText = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
-    elements.liveClock.textContent = clockText;
+    const timeText = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    const dateText = `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+    elements.liveClock.textContent = `${timeText} ${dateText}`;
     elements.liveClock.dateTime = date.toISOString();
+    elements.fullscreenClockTime.textContent = timeText;
+    elements.fullscreenClockTime.dateTime = date.toISOString();
+    elements.fullscreenClockDate.textContent = dateText;
   }
 
   function getInitialPanelTarget() {
@@ -1190,7 +1814,7 @@
       "stopwatch_id",
       "stopwatch",
       "event",
-      "elapsed_ms",
+      "elapsed_hms",
       "lap",
       "split_ms",
     ];
@@ -1201,7 +1825,7 @@
       event.stopwatchId,
       event.stopwatchName,
       event.eventType,
-      event.elapsedMs,
+      formatElapsedHms(event.elapsedMs),
       event.lapNumber,
       event.splitMs,
     ]);
@@ -1214,6 +1838,31 @@
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  }
+
+  function applyLanguage(language) {
+    state.language = LANGUAGE_VALUES.includes(language) ? language : "en";
+    elements.html.lang = state.language;
+
+    elements.languageButtons.forEach((button) => {
+      const isActive = button.dataset.languageValue === state.language;
+      const label = LANGUAGE_LABELS[button.dataset.languageValue] || button.dataset.languageValue.toUpperCase();
+      button.setAttribute("aria-pressed", String(isActive));
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    });
+
+    elements.i18nText.forEach((element) => {
+      element.textContent = t(element.dataset.i18n);
+    });
+    elements.i18nAria.forEach((element) => {
+      element.setAttribute("aria-label", t(element.dataset.i18nAria));
+    });
+    elements.themeButtons.forEach((button) => {
+      const label = getThemeLabel(button.dataset.themeValue);
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    });
   }
 
   function applyTheme(mode) {
@@ -1232,10 +1881,11 @@
     }
   }
 
-  function enterCountdownFullscreen() {
+  function enterCountdownFullscreen(countdown) {
+    activeFullscreenTimerId = countdown ? countdown.id : (state.countdowns[0] && state.countdowns[0].id);
     elements.fullscreenCountdown.hidden = false;
     pseudoFullscreenActive = false;
-    updateCountdownDisplays();
+    updateFullscreenCountdown();
 
     if (elements.fullscreenCountdown.requestFullscreen) {
       elements.fullscreenCountdown.requestFullscreen().catch(() => {
@@ -1251,6 +1901,7 @@
       document.exitFullscreen();
       return;
     }
+    activeFullscreenTimerId = null;
     elements.fullscreenCountdown.hidden = true;
     pseudoFullscreenActive = false;
   }
@@ -1259,42 +1910,104 @@
     if (document.fullscreenElement === elements.fullscreenCountdown) {
       elements.fullscreenCountdown.hidden = false;
       pseudoFullscreenActive = false;
+    } else if (document.fullscreenElement === elements.fullscreenClock) {
+      elements.fullscreenClock.hidden = false;
+      pseudoFullscreenActive = false;
     } else if (!pseudoFullscreenActive) {
+      activeFullscreenTimerId = null;
       elements.fullscreenCountdown.hidden = true;
+      elements.fullscreenClock.hidden = true;
     }
   }
 
-  function playCountdownSound() {
-    const countdown = state.countdown;
-    if (countdown.sound === "mute" || countdown.volume <= 0) {
+  function enterClockFullscreen() {
+    elements.fullscreenClock.hidden = false;
+    pseudoFullscreenActive = false;
+    updateClock();
+
+    if (elements.fullscreenClock.requestFullscreen) {
+      elements.fullscreenClock.requestFullscreen().catch(() => {
+        pseudoFullscreenActive = true;
+      });
+    } else {
+      pseudoFullscreenActive = true;
+    }
+  }
+
+  function exitClockFullscreen() {
+    if (document.fullscreenElement === elements.fullscreenClock) {
+      document.exitFullscreen();
+      return;
+    }
+    elements.fullscreenClock.hidden = true;
+    pseudoFullscreenActive = false;
+  }
+
+  function playCountdownSound(countdown) {
+    const sound = countdown && SOUND_VALUES.includes(countdown.sound) ? countdown.sound : "beep";
+    const volume = state.timerSettings.volume;
+    const requestId = ++activeAlarmRequest;
+    stopActiveCountdownSound();
+
+    if (sound === "mute" || volume <= 0) {
       return;
     }
 
     ensureAudioContext()
       .then((context) => {
-        if (!context) {
+        if (!context || requestId !== activeAlarmRequest) {
           return;
         }
 
-        const volume = clamp(countdown.volume / 100, 0, 1) * 0.45;
+        const outputVolume = clamp(volume / 100, 0, 1) * 0.42;
         const master = context.createGain();
-        master.gain.setValueAtTime(volume, context.currentTime);
-        master.connect(context.destination);
+        master.gain.setValueAtTime(outputVolume, context.currentTime);
+        const compressor = context.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-18, context.currentTime);
+        compressor.knee.setValueAtTime(18, context.currentTime);
+        compressor.ratio.setValueAtTime(8, context.currentTime);
+        compressor.attack.setValueAtTime(0.004, context.currentTime);
+        compressor.release.setValueAtTime(0.18, context.currentTime);
+        master.connect(compressor);
+        compressor.connect(context.destination);
+        activeAlarmMaster = master;
 
-        if (countdown.sound === "chime") {
-          scheduleTone(context, master, 659.25, 0, 0.16, "sine");
-          scheduleTone(context, master, 783.99, 0.17, 0.16, "sine");
-          scheduleTone(context, master, 987.77, 0.34, 0.22, "sine");
-        } else if (countdown.sound === "bell") {
-          scheduleTone(context, master, 880, 0, 0.42, "triangle");
-          scheduleTone(context, master, 1320, 0.03, 0.32, "sine");
+        if (sound === "chime") {
+          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 1.15) {
+            scheduleChime(context, master, offset);
+          }
+        } else if (sound === "bell") {
+          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 1.05) {
+            scheduleBell(context, master, offset);
+          }
+        } else if (sound === "ring") {
+          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.625) {
+            scheduleRing(context, master, offset);
+          }
         } else {
-          scheduleTone(context, master, 880, 0, 0.28, "square");
+          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.82) {
+            scheduleSignal(context, master, offset);
+          }
         }
 
-        window.setTimeout(() => master.disconnect(), 1200);
+        activeAlarmTimeout = window.setTimeout(() => {
+          if (requestId === activeAlarmRequest) {
+            stopActiveCountdownSound();
+          }
+        }, (ALARM_DURATION_SECONDS + 0.4) * 1000);
       })
       .catch(() => {});
+  }
+
+  function stopActiveCountdownSound() {
+    if (activeAlarmTimeout) {
+      window.clearTimeout(activeAlarmTimeout);
+      activeAlarmTimeout = 0;
+    }
+    if (activeAlarmMaster) {
+      activeAlarmMaster.disconnect();
+      activeAlarmMaster = null;
+    }
   }
 
   async function ensureAudioContext() {
@@ -1311,7 +2024,82 @@
     return audioContext;
   }
 
-  function scheduleTone(context, output, frequency, offset, duration, type) {
+  function scheduleSignal(context, output, offset) {
+    scheduleTone(context, output, 587.33, offset, 0.2, "triangle", 0.62);
+    scheduleTone(context, output, 880, offset + 0.23, 0.3, "sine", 0.72);
+    scheduleTone(context, output, 1760, offset + 0.23, 0.16, "sine", 0.16);
+  }
+
+  function scheduleChime(context, output, offset) {
+    scheduleTone(context, output, 523.25, offset, 0.58, "sine", 0.42);
+    scheduleTone(context, output, 659.25, offset + 0.12, 0.62, "sine", 0.34);
+    scheduleTone(context, output, 783.99, offset + 0.24, 0.82, "sine", 0.3);
+    scheduleTone(context, output, 1567.98, offset + 0.25, 0.4, "sine", 0.1);
+  }
+
+  function scheduleBell(context, output, offset) {
+    scheduleTone(context, output, 659.25, offset, 0.88, "sine", 0.4);
+    scheduleTone(context, output, 830.61, offset + 0.01, 0.68, "sine", 0.26);
+    scheduleTone(context, output, 1318.51, offset + 0.02, 0.48, "sine", 0.16);
+    scheduleTone(context, output, 1975.53, offset + 0.025, 0.3, "sine", 0.08);
+  }
+
+  function scheduleRing(context, output, offset) {
+    const strikes = [1174.66, 1396.91, 1174.66, 1396.91, 1174.66];
+    strikes.forEach((frequency, index) => {
+      const strikeOffset = offset + (index * 0.12);
+      scheduleAlarmBellStrike(context, output, frequency, strikeOffset);
+    });
+  }
+
+  function scheduleAlarmBellStrike(context, output, frequency, offset) {
+    const modes = [
+      [1, 0.18, 0.27],
+      [1.46, 0.2, 0.24],
+      [2.31, 0.17, 0.2],
+      [3.77, 0.11, 0.14],
+      [5.13, 0.06, 0.09],
+    ];
+
+    modes.forEach(([ratio, peak, duration], index) => {
+      scheduleTone(context, output, frequency * ratio, offset + (index * 0.0015), duration, "sine", peak, 0.002);
+    });
+    scheduleBellHammer(context, output, frequency, offset);
+  }
+
+  function scheduleBellHammer(context, output, frequency, offset) {
+    const duration = 0.018;
+    const length = Math.max(1, Math.floor(context.sampleRate * duration));
+    const buffer = context.createBuffer(1, length, context.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let index = 0; index < length; index += 1) {
+      samples[index] = (Math.random() * 2 - 1) * (1 - index / length);
+    }
+
+    const source = context.createBufferSource();
+    const highPass = context.createBiquadFilter();
+    const resonator = context.createBiquadFilter();
+    const gain = context.createGain();
+    const start = context.currentTime + offset;
+    const end = start + duration;
+
+    highPass.type = "highpass";
+    highPass.frequency.setValueAtTime(frequency * 0.7, start);
+    resonator.type = "bandpass";
+    resonator.frequency.setValueAtTime(frequency * 1.55, start);
+    resonator.Q.setValueAtTime(8, start);
+    gain.gain.setValueAtTime(0.11, start);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end);
+    source.buffer = buffer;
+    source.connect(highPass);
+    highPass.connect(resonator);
+    resonator.connect(gain);
+    gain.connect(output);
+    source.start(start);
+    source.stop(end + 0.01);
+  }
+
+  function scheduleTone(context, output, frequency, offset, duration, type, peak = 1, attack = 0.018) {
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     const start = context.currentTime + offset;
@@ -1320,7 +2108,7 @@
     oscillator.type = type;
     oscillator.frequency.setValueAtTime(frequency, start);
     envelope.gain.setValueAtTime(0.0001, start);
-    envelope.gain.exponentialRampToValueAtTime(1, start + 0.025);
+    envelope.gain.exponentialRampToValueAtTime(peak, start + Math.min(attack, duration * 0.35));
     envelope.gain.exponentialRampToValueAtTime(0.0001, end);
     oscillator.connect(envelope);
     envelope.connect(output);
@@ -1343,18 +2131,22 @@
   }
 
   function serializeState() {
-    return {
+    const serialized = {
       ...state,
       stopwatches: state.stopwatches.map((stopwatch) => ({
         ...stopwatch,
         startedAtPerf: null,
       })),
-      countdown: {
-        ...state.countdown,
+      countdowns: state.countdowns.map((countdown) => ({
+        ...countdown,
+        remainingMs: getCountdownRemaining(countdown),
         startedAtPerf: null,
         endAtPerf: null,
-      },
+      })),
+      timerSettings: { ...state.timerSettings },
     };
+    delete serialized.countdown;
+    return serialized;
   }
 
   function registerServiceWorker() {
@@ -1370,6 +2162,42 @@
 
   function getStopwatch(id) {
     return state.stopwatches.find((stopwatch) => stopwatch.id === id);
+  }
+
+  function getCountdown(id) {
+    return state.countdowns.find((countdown) => countdown.id === id);
+  }
+
+  function getCountdownRow(id) {
+    return elements.countdownList.querySelector(`[data-timer-id="${cssEscape(id)}"]`);
+  }
+
+  function getDefaultCountdownName(countdown) {
+    const index = state.countdowns.indexOf(countdown);
+    return `${t("timerDefaultName")} ${index >= 0 ? index + 1 : state.countdowns.length}`;
+  }
+
+  function getCountdownActionLabel(countdown) {
+    if (countdown.status === "running") {
+      return t("pause");
+    }
+    if (countdown.status === "complete") {
+      return t("restart");
+    }
+    return t("start");
+  }
+
+  function getCountdownAggregateStatus() {
+    if (state.countdowns.some((countdown) => countdown.status === "running")) {
+      return "running";
+    }
+    if (state.countdowns.some((countdown) => countdown.status === "complete")) {
+      return "complete";
+    }
+    if (state.countdowns.some((countdown) => countdown.status === "paused")) {
+      return "paused";
+    }
+    return "idle";
   }
 
   function setShortcutMessage(message) {
@@ -1415,6 +2243,45 @@
     return event.key || event.code;
   }
 
+  function t(key) {
+    const language = LANGUAGE_VALUES.includes(state.language) ? state.language : "en";
+    return (TRANSLATIONS[language] && TRANSLATIONS[language][key]) || TRANSLATIONS.en[key] || key;
+  }
+
+  function formatText(key, values) {
+    return t(key).replace(/\{(\w+)\}/g, (match, name) => (
+      Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : match
+    ));
+  }
+
+  function pluralWord(count, singularKey, pluralKey) {
+    return t(count === 1 ? singularKey : pluralKey);
+  }
+
+  function statusLabel(status) {
+    return t(status);
+  }
+
+  function eventLabel(eventType) {
+    const labels = {
+      countdown_complete: "eventTimerComplete",
+      countdown_reset: "eventTimerReset",
+      countdown_start: "eventTimerStart",
+      countdown_stop: "eventTimerStop",
+    };
+    return labels[eventType] ? t(labels[eventType]) : eventType.replace(/^countdown_/, "timer_").replace(/_/g, " ");
+  }
+
+  function getThemeLabel(mode) {
+    const labels = THEME_LABELS[mode] || THEME_LABELS.auto;
+    return labels[state.language] || labels.en;
+  }
+
+  function getPreferredLanguage() {
+    const browserLanguage = (navigator.language || "en").toLowerCase();
+    return LANGUAGE_VALUES.find((language) => browserLanguage.startsWith(language)) || "en";
+  }
+
   function formatStopwatch(ms) {
     const totalMs = Math.max(0, Math.floor(ms));
     const hundredths = Math.floor((totalMs % 1000) / 10);
@@ -1427,6 +2294,14 @@
       return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(hundredths)}`;
     }
     return `${pad(minutes)}:${pad(seconds)}.${pad(hundredths)}`;
+  }
+
+  function formatElapsedHms(ms) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   }
 
   function formatCountdown(ms) {

@@ -15,30 +15,57 @@
     <script src="./app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to timers</a>
+    <a class="skip-link" href="#main" data-i18n="skipLink">Skip to timers</a>
 
     <header class="app-header">
       <div class="brand-block">
-        <p class="section-kicker">TIMERS</p>
         <h1>StopTheTime</h1>
       </div>
 
       <nav class="header-menu" aria-label="Timer menu">
-        <button class="menu-link" type="button" data-menu-target="stopwatchPanel" aria-pressed="true">Stopwatch</button>
-        <button class="menu-link" type="button" data-menu-target="timerPanel" aria-pressed="false">Timer</button>
+        <button class="menu-link" type="button" data-menu-target="stopwatchPanel" aria-pressed="true" data-i18n="navStopwatch">Stopwatch</button>
+        <button class="menu-link" type="button" data-menu-target="timerPanel" aria-pressed="false" data-i18n="navTimer">Timer</button>
       </nav>
 
       <div class="header-tools" aria-label="Application controls">
-        <time id="liveClock" class="live-clock" datetime="">--:--:-- --:--:----</time>
+        <button id="liveClockBtn" class="live-clock" type="button" aria-label="Open full screen clock" data-i18n-aria="openClockFullscreen">
+          <time id="liveClock" datetime="">--:--:-- --:--:----</time>
+        </button>
 
-        <button id="newSessionBtn" class="button button-secondary" type="button">
+        <button id="newSessionBtn" class="button button-secondary" type="button" data-i18n="newSession">
           New Session
         </button>
 
-        <div class="theme-control" role="group" aria-label="Theme">
-          <button class="theme-option" type="button" data-theme-value="auto" aria-pressed="true">Auto</button>
-          <button class="theme-option" type="button" data-theme-value="dark" aria-pressed="false">Dark</button>
-          <button class="theme-option" type="button" data-theme-value="light" aria-pressed="false">Light</button>
+        <div class="preference-stack">
+          <div id="languageSwitcher" class="preference-switcher language-switcher" role="group" aria-label="Language" data-i18n-aria="language">
+            <button class="switcher-btn language-option" type="button" data-language-value="nl" aria-label="Nederlands" title="Nederlands" aria-pressed="false">
+              <span class="language-flag" aria-hidden="true">
+                <svg viewBox="0 0 9 6" width="30" height="20" focusable="false"><path fill="#ae1c28" d="M0 0h9v2H0z"></path><path fill="#fff" d="M0 2h9v2H0z"></path><path fill="#21468b" d="M0 4h9v2H0z"></path></svg>
+              </span>
+            </button>
+            <button class="switcher-btn language-option" type="button" data-language-value="en" aria-label="English" title="English" aria-pressed="true">
+              <span class="language-flag" aria-hidden="true">
+                <svg viewBox="0 0 60 30" width="30" height="15" focusable="false"><defs><clipPath id="languageFlagClipGb"><path d="M0 0h60v30H0z"></path></clipPath></defs><path fill="#012169" d="M0 0h60v30H0z"></path><path stroke="#fff" stroke-width="6" d="M0 0l60 30M60 0L0 30" clip-path="url(#languageFlagClipGb)"></path><path stroke="#c8102e" stroke-width="4" d="M0 0l60 30M60 0L0 30" clip-path="url(#languageFlagClipGb)"></path><path stroke="#fff" stroke-width="10" d="M30 0v30M0 15h60" clip-path="url(#languageFlagClipGb)"></path><path stroke="#c8102e" stroke-width="6" d="M30 0v30M0 15h60" clip-path="url(#languageFlagClipGb)"></path></svg>
+              </span>
+            </button>
+            <button class="switcher-btn language-option" type="button" data-language-value="de" aria-label="Deutsch" title="Deutsch" aria-pressed="false">
+              <span class="language-flag" aria-hidden="true">
+                <svg viewBox="0 0 5 3" width="30" height="18" focusable="false"><path fill="#000" d="M0 0h5v1H0z"></path><path fill="#d00" d="M0 1h5v1H0z"></path><path fill="#ffce00" d="M0 2h5v1H0z"></path></svg>
+              </span>
+            </button>
+          </div>
+
+          <div id="themeSwitcher" class="preference-switcher theme-switcher" role="group" aria-label="Appearance" data-i18n-aria="appearance">
+            <button class="switcher-btn theme-option" type="button" data-theme-value="light" aria-label="Light mode" title="Light mode" aria-pressed="false">
+              <span class="theme-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg></span>
+            </button>
+            <button class="switcher-btn theme-option" type="button" data-theme-value="auto" aria-label="Match system" title="Match system" aria-pressed="true">
+              <span class="theme-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
+            </button>
+            <button class="switcher-btn theme-option" type="button" data-theme-value="dark" aria-label="Dark mode" title="Dark mode" aria-pressed="false">
+              <span class="theme-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -47,21 +74,21 @@
       <section id="stopwatchPanel" class="workspace-section" aria-labelledby="stopwatchHeading">
         <div class="section-heading">
           <div>
-            <h2 id="stopwatchHeading">Stopwatches</h2>
+            <h2 id="stopwatchHeading" data-i18n="stopwatchHeading">Stopwatches</h2>
           </div>
           <p id="sessionMeta" class="session-meta">Session ready</p>
         </div>
 
-        <div class="global-actions" role="group" aria-label="Global stopwatch controls">
-          <button id="startAllBtn" class="button button-primary" type="button">START ALL</button>
-          <button id="stopAllBtn" class="button button-danger" type="button">STOP ALL</button>
-          <button id="lapAllBtn" class="button button-secondary" type="button">LAP ALL</button>
-          <button id="addStopwatchBtn" class="button button-quiet" type="button">+ Stopwatch</button>
+        <div class="global-actions" role="group" aria-label="Global stopwatch controls" data-i18n-aria="globalStopwatchControls">
+          <button id="startAllBtn" class="button button-primary" type="button" data-i18n="startAll">START ALL</button>
+          <button id="stopAllBtn" class="button button-danger" type="button" data-i18n="stopAll">STOP ALL</button>
+          <button id="lapAllBtn" class="button button-secondary" type="button" data-i18n="lapAll">LAP ALL</button>
+          <button id="addStopwatchBtn" class="button button-quiet" type="button" data-i18n="addStopwatch">+ Stopwatch</button>
         </div>
 
         <div class="shortcut-strip" aria-label="Keyboard shortcuts">
-          <span><kbd>Space</kbd> Start / Stop All</span>
-          <span><kbd>L</kbd> Lap All</span>
+          <span><kbd>Space</kbd> <span data-i18n="spaceShortcut">Start / Stop All</span></span>
+          <span><kbd>L</kbd> <span data-i18n="lapShortcut">Lap All</span></span>
           <p id="shortcutMessage" class="inline-message" role="status" aria-live="polite"></p>
         </div>
 
@@ -71,63 +98,41 @@
       <section id="timerPanel" class="workspace-section countdown-section" aria-labelledby="countdownHeading" hidden>
         <div class="section-heading">
           <div>
-            <h2 id="countdownHeading">Countdown</h2>
+            <h2 id="countdownHeading" data-i18n="countdownHeading">Timers</h2>
           </div>
-          <output id="countdownStatus" class="status-pill" aria-live="polite">Idle</output>
-        </div>
-
-        <div class="countdown-grid">
-          <label class="field countdown-name-field">
-            <span>Name</span>
-            <input id="countdownName" type="text" autocomplete="off" spellcheck="false">
-          </label>
-
-          <div id="countdownDisplay" class="countdown-display" role="group" aria-label="Countdown duration">
-            <input id="countdownHours" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown hours">
-            <span class="time-separator" aria-hidden="true">:</span>
-            <input id="countdownMinutes" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown minutes">
-            <span class="time-separator" aria-hidden="true">:</span>
-            <input id="countdownSeconds" class="countdown-segment-input" type="text" inputmode="numeric" maxlength="2" aria-label="Countdown seconds">
-            <span class="time-format-label" aria-hidden="true">H:m:s</span>
-          </div>
-
-          <div class="countdown-actions" role="group" aria-label="Countdown controls">
-            <button id="countdownStartBtn" class="button button-primary" type="button">START</button>
-            <button id="countdownResetBtn" class="button button-secondary" type="button">RESET</button>
-            <button id="countdownFullscreenBtn" class="button button-quiet" type="button">FULLSCREEN</button>
+          <div class="timer-heading-status">
+            <p id="countdownMeta" class="session-meta">1 timer - 0 running</p>
+            <output id="countdownStatus" class="status-pill" aria-live="polite">Idle</output>
           </div>
         </div>
+
+        <div class="timer-global-actions" role="group" aria-label="Global timer controls" data-i18n-aria="globalTimerControls">
+          <button id="startAllTimersBtn" class="button button-primary" type="button" data-i18n="startAllTimers">START ALL TIMERS</button>
+          <button id="pauseAllTimersBtn" class="button button-secondary" type="button" data-i18n="pauseAllTimers">PAUSE ALL TIMERS</button>
+          <button id="stopAllTimersBtn" class="button button-danger" type="button" data-i18n="stopAllTimers">STOP ALL TIMERS</button>
+          <button id="addTimerBtn" class="button button-quiet" type="button" data-i18n="addTimer">+ Timer</button>
+        </div>
+
+        <div id="countdownList" class="countdown-list" aria-live="polite"></div>
 
         <div class="sound-row">
-          <label class="field compact-field">
-            <span>Sound</span>
-            <select id="soundSelect">
-              <option value="beep">Beep</option>
-              <option value="chime">Chime</option>
-              <option value="bell">Bell</option>
-              <option value="mute">Mute</option>
-            </select>
-          </label>
-
           <label class="field volume-field">
-            <span>Volume <output id="volumeValue">100%</output></span>
+            <span><span data-i18n="overallVolumeLabel">Overall volume</span> <output id="volumeValue">100%</output></span>
             <input id="volumeInput" type="range" min="0" max="100" step="1">
           </label>
-
-          <button id="testSoundBtn" class="button button-secondary" type="button">Test sound</button>
         </div>
       </section>
 
       <section class="workspace-section export-section" aria-labelledby="exportHeading">
         <div class="section-heading">
           <div>
-            <h2 id="exportHeading">Session Log</h2>
+            <h2 id="exportHeading" data-i18n="sessionLogHeading">Session Log</h2>
           </div>
           <div class="section-actions">
-            <button id="resetEventLogBtn" class="button button-secondary" type="button">
+            <button id="resetEventLogBtn" class="button button-secondary" type="button" data-i18n="resetEventLog">
               Reset event log
             </button>
-            <button id="exportCsvBtn" class="button button-primary" type="button">
+            <button id="exportCsvBtn" class="button button-primary" type="button" data-i18n="exportCsv">
               Export complete session -&gt; CSV
             </button>
           </div>
@@ -139,16 +144,16 @@
             <caption>Recent session events</caption>
             <thead>
               <tr>
-                <th scope="col">Time</th>
-                <th scope="col">Timer</th>
-                <th scope="col">Event</th>
-                <th scope="col">Elapsed</th>
-                <th scope="col">Lap</th>
+                <th scope="col" data-i18n="tableTime">Time</th>
+                <th scope="col" data-i18n="tableTimer">Timer</th>
+                <th scope="col" data-i18n="tableEvent">Event</th>
+                <th scope="col" data-i18n="tableElapsed">Elapsed</th>
+                <th scope="col" data-i18n="tableLap">Lap</th>
               </tr>
             </thead>
             <tbody id="eventRows">
               <tr>
-                <td colspan="5">No events yet</td>
+                <td colspan="5" data-i18n="noEvents">No events yet</td>
               </tr>
             </tbody>
           </table>
@@ -157,15 +162,29 @@
     </main>
 
     <div id="fullscreenCountdown" class="fullscreen-countdown" role="dialog" aria-modal="true" aria-labelledby="fullscreenCountdownName" hidden>
-      <button id="exitFullscreenBtn" class="button button-secondary fullscreen-exit" type="button" aria-label="Exit fullscreen countdown">
+      <button id="exitFullscreenBtn" class="button button-secondary fullscreen-exit" type="button" aria-label="Exit fullscreen countdown" data-i18n-aria="exitFullscreen" data-i18n="exit">
         Exit
       </button>
       <div class="fullscreen-content">
         <p id="fullscreenCountdownName" class="fullscreen-name">EXPERIMENT</p>
         <output id="fullscreenCountdownDisplay" class="fullscreen-time">00:05</output>
+        <div class="fullscreen-controls" role="group" aria-label="Fullscreen timer controls" data-i18n-aria="fullscreenTimerControls">
+          <button id="fullscreenToggleBtn" class="button button-primary" type="button" data-i18n="start">START</button>
+          <button id="fullscreenResetBtn" class="button button-danger" type="button" data-i18n="stop">STOP</button>
+        </div>
         <div class="fullscreen-progress" aria-hidden="true">
           <span id="fullscreenProgressBar"></span>
         </div>
+      </div>
+    </div>
+
+    <div id="fullscreenClock" class="fullscreen-clock" role="dialog" aria-modal="true" aria-labelledby="fullscreenClockTime" hidden>
+      <button id="exitClockFullscreenBtn" class="button button-secondary fullscreen-exit" type="button" aria-label="Exit full screen clock" data-i18n-aria="exitClockFullscreen" data-i18n="exit">
+        Exit
+      </button>
+      <div class="fullscreen-clock-content">
+        <time id="fullscreenClockTime" class="fullscreen-clock-time" datetime="">--:--:--</time>
+        <p id="fullscreenClockDate" class="fullscreen-clock-date">-- --- ----</p>
       </div>
     </div>
   </body>
