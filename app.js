@@ -43,7 +43,6 @@
   let state = loadState();
   let saveTimer = 0;
   let audioContext = null;
-  let shortcutEditMode = false;
   let capturingStopwatchId = null;
   let pendingExpiredCountdownEvent = false;
   let pseudoFullscreenActive = false;
@@ -97,8 +96,6 @@
     elements.volumeInput = document.getElementById("volumeInput");
     elements.volumeValue = document.getElementById("volumeValue");
     elements.testSoundBtn = document.getElementById("testSoundBtn");
-    elements.editShortcutsBtn = document.getElementById("editShortcutsBtn");
-    elements.shortcutRows = document.getElementById("shortcutRows");
     elements.shortcutMessage = document.getElementById("shortcutMessage");
     elements.exportCsvBtn = document.getElementById("exportCsvBtn");
     elements.eventCount = document.getElementById("eventCount");
@@ -343,16 +340,6 @@
       playCountdownSound();
     });
 
-    elements.editShortcutsBtn.addEventListener("click", () => {
-      shortcutEditMode = !shortcutEditMode;
-      if (!shortcutEditMode) {
-        capturingStopwatchId = null;
-        setShortcutMessage("");
-      }
-      renderShortcuts();
-    });
-
-    elements.shortcutRows.addEventListener("click", onShortcutClick);
     document.addEventListener("keydown", onDocumentKeydown);
     document.addEventListener("fullscreenchange", onFullscreenChange);
     const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -370,6 +357,11 @@
   }
 
   function onStopwatchClick(event) {
+    if (event.target.closest("[data-shortcut-action]")) {
+      onShortcutClick(event);
+      return;
+    }
+
     const button = event.target.closest("[data-stopwatch-action]");
     if (!button) {
       return;
@@ -426,7 +418,7 @@
 
   function onShortcutClick(event) {
     const keyButton = event.target.closest("[data-shortcut-action]");
-    if (!keyButton || !shortcutEditMode) {
+    if (!keyButton) {
       return;
     }
 
@@ -438,7 +430,8 @@
     if (keyButton.dataset.shortcutAction === "capture") {
       capturingStopwatchId = stopwatch.id;
       setShortcutMessage(`${stopwatch.name}: press a key...`);
-      renderShortcuts();
+      renderStopwatches();
+      focusShortcutButton(stopwatch.id);
     } else if (keyButton.dataset.shortcutAction === "clear") {
       stopwatch.shortcutCode = "";
       stopwatch.shortcutLabel = "";
@@ -446,7 +439,7 @@
         capturingStopwatchId = null;
       }
       setShortcutMessage(`${stopwatch.name}: shortcut cleared.`);
-      renderShortcuts();
+      renderStopwatches();
       scheduleSave();
     }
   }
@@ -487,7 +480,7 @@
     if (event.code === "Escape") {
       capturingStopwatchId = null;
       setShortcutMessage("Shortcut edit cancelled.");
-      renderShortcuts();
+      renderStopwatches();
       return;
     }
 
@@ -499,7 +492,7 @@
     const stopwatch = getStopwatch(capturingStopwatchId);
     if (!stopwatch) {
       capturingStopwatchId = null;
-      renderShortcuts();
+      renderStopwatches();
       return;
     }
 
@@ -508,7 +501,7 @@
       stopwatch.shortcutLabel = "";
       capturingStopwatchId = null;
       setShortcutMessage(`${stopwatch.name}: shortcut cleared.`);
-      renderShortcuts();
+      renderStopwatches();
       scheduleSave();
       return;
     }
@@ -533,7 +526,7 @@
     stopwatch.shortcutLabel = displayKeyLabel(event);
     capturingStopwatchId = null;
     setShortcutMessage(`${stopwatch.name}: ${stopwatch.shortcutLabel} assigned.`);
-    renderShortcuts();
+    renderStopwatches();
     scheduleSave();
   }
 
@@ -877,7 +870,6 @@
     renderSessionMeta();
     renderStopwatches();
     renderCountdown();
-    renderShortcuts();
     renderEventLog();
   }
 
@@ -888,7 +880,8 @@
 
   function renderStopwatches() {
     elements.stopwatchList.innerHTML = state.stopwatches.map((stopwatch) => {
-      const shortcut = stopwatch.shortcutLabel ? `<span class="shortcut-hint">${escapeHtml(stopwatch.shortcutLabel)}</span>` : "";
+      const isCapturing = capturingStopwatchId === stopwatch.id;
+      const shortcutLabel = isCapturing ? "Press a key..." : stopwatch.shortcutLabel || "Set key";
       const laps = stopwatch.laps.length
         ? stopwatch.laps.map((lap) => `
             <li class="lap-item">
@@ -922,6 +915,24 @@
               aria-label="Stopwatch color"
               data-stopwatch-id="${escapeHtml(stopwatch.id)}"
             >
+            <div class="stopwatch-shortcut" aria-label="${escapeHtml(stopwatch.name)} keyboard shortcut">
+              <span>Shortcut</span>
+              <button
+                class="shortcut-key"
+                type="button"
+                data-shortcut-action="capture"
+                data-stopwatch-id="${escapeHtml(stopwatch.id)}"
+                aria-label="Set shortcut for ${escapeHtml(stopwatch.name)}"
+                aria-pressed="${isCapturing ? "true" : "false"}"
+              >${escapeHtml(shortcutLabel)}</button>
+              <button
+                class="button button-secondary clear-shortcut"
+                type="button"
+                data-shortcut-action="clear"
+                data-stopwatch-id="${escapeHtml(stopwatch.id)}"
+                ${stopwatch.shortcutCode ? "" : "disabled"}
+              >Clear</button>
+            </div>
           </div>
 
           <output class="timer-display" data-time-id="${escapeHtml(stopwatch.id)}">${formatStopwatch(getStopwatchElapsed(stopwatch))}</output>
@@ -934,7 +945,7 @@
           </div>
 
           <details class="lap-history" data-stopwatch-id="${escapeHtml(stopwatch.id)}" ${stopwatch.lapsOpen ? "open" : ""}>
-            <summary>Laps (${stopwatch.laps.length}) ${shortcut}</summary>
+            <summary>Laps (${stopwatch.laps.length})</summary>
             <ol class="lap-list">${laps}</ol>
           </details>
         </article>
@@ -967,38 +978,6 @@
     renderEventLog();
   }
 
-  function renderShortcuts() {
-    elements.editShortcutsBtn.textContent = shortcutEditMode ? "Done" : "Edit shortcuts";
-    elements.editShortcutsBtn.setAttribute("aria-pressed", String(shortcutEditMode));
-
-    elements.shortcutRows.innerHTML = state.stopwatches.map((stopwatch) => {
-      const isCapturing = capturingStopwatchId === stopwatch.id;
-      const label = isCapturing
-        ? "Press a key..."
-        : stopwatch.shortcutLabel || "None";
-      return `
-        <div class="shortcut-row" data-shortcut-row="${escapeHtml(stopwatch.id)}">
-          <span class="shortcut-row-name">${escapeHtml(stopwatch.name)}</span>
-          <button
-            class="shortcut-key"
-            type="button"
-            data-shortcut-action="capture"
-            data-stopwatch-id="${escapeHtml(stopwatch.id)}"
-            ${shortcutEditMode ? "" : "disabled"}
-            aria-label="Set shortcut for ${escapeHtml(stopwatch.name)}"
-          >${escapeHtml(label)}</button>
-          <button
-            class="button button-secondary clear-shortcut"
-            type="button"
-            data-shortcut-action="clear"
-            data-stopwatch-id="${escapeHtml(stopwatch.id)}"
-            ${shortcutEditMode && stopwatch.shortcutCode ? "" : "disabled"}
-          >Clear</button>
-        </div>
-      `;
-    }).join("");
-  }
-
   function renderEventLog() {
     const count = state.eventLog.length;
     elements.eventCount.textContent = `${count} ${count === 1 ? "event" : "events"} recorded`;
@@ -1022,9 +1001,28 @@
   }
 
   function updateShortcutName(stopwatch) {
-    const row = elements.shortcutRows.querySelector(`[data-shortcut-row="${cssEscape(stopwatch.id)}"] .shortcut-row-name`);
-    if (row) {
-      row.textContent = stopwatch.name;
+    const row = elements.stopwatchList.querySelector(`[data-stopwatch-id="${cssEscape(stopwatch.id)}"]`);
+    const shortcutPanel = row ? row.querySelector(".stopwatch-shortcut") : null;
+    const captureButton = row ? row.querySelector("[data-shortcut-action='capture']") : null;
+    const timerActions = row ? row.querySelector(".timer-actions") : null;
+
+    if (shortcutPanel) {
+      shortcutPanel.setAttribute("aria-label", `${stopwatch.name} keyboard shortcut`);
+    }
+    if (captureButton) {
+      captureButton.setAttribute("aria-label", `Set shortcut for ${stopwatch.name}`);
+    }
+    if (timerActions) {
+      timerActions.setAttribute("aria-label", `${stopwatch.name} controls`);
+    }
+  }
+
+  function focusShortcutButton(stopwatchId) {
+    const button = elements.stopwatchList.querySelector(
+      `[data-stopwatch-id="${cssEscape(stopwatchId)}"] [data-shortcut-action="capture"]`
+    );
+    if (button) {
+      button.focus();
     }
   }
 

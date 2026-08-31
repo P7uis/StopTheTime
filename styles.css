@@ -252,6 +252,16 @@ caption {
   padding: 1rem 1.1rem 0;
 }
 
+.shortcut-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  padding: 0.8rem 1.1rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -396,6 +406,18 @@ caption {
   border-radius: 8px;
   background: var(--bg);
   cursor: pointer;
+}
+
+.stopwatch-shortcut {
+  grid-column: 2 / 4;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 720;
 }
 
 .timer-display {
@@ -549,39 +571,7 @@ caption {
   width: min(22rem, 100%);
 }
 
-.shortcut-layout {
-  display: grid;
-  grid-template-columns: minmax(14rem, 0.7fr) minmax(18rem, 1.3fr);
-  gap: 1rem;
-  padding: 1rem 1.1rem;
-}
-
-.shortcut-group {
-  min-width: 0;
-}
-
-.shortcut-group h3 {
-  margin: 0 0 0.75rem;
-  color: var(--text);
-  font-size: 1rem;
-}
-
-.shortcut-list {
-  display: grid;
-  gap: 0.45rem;
-  margin: 0;
-}
-
-.shortcut-list div,
-.shortcut-row {
-  display: grid;
-  grid-template-columns: minmax(7rem, 1fr) minmax(7rem, auto) auto;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 2.6rem;
-}
-
-.shortcut-list dt,
+.shortcut-strip kbd,
 .shortcut-key {
   display: inline-flex;
   align-items: center;
@@ -597,27 +587,13 @@ caption {
   font-weight: 760;
 }
 
-.shortcut-list dd {
-  margin: 0;
-  color: var(--text-muted);
-}
-
-.shortcut-rows {
-  display: grid;
-  gap: 0.4rem;
-}
-
-.shortcut-row-name {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--text);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .shortcut-key {
   cursor: pointer;
+}
+
+.shortcut-key[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .shortcut-key:disabled {
@@ -633,8 +609,9 @@ caption {
 }
 
 .inline-message {
+  flex: 1 1 18rem;
   min-height: 1.4rem;
-  padding: 0 1.1rem 1rem;
+  margin: 0;
 }
 
 .event-table-wrap {
@@ -860,8 +837,7 @@ caption {
     grid-template-columns: 1fr;
   }
 
-  .countdown-grid,
-  .shortcut-layout {
+  .countdown-grid {
     grid-template-columns: 1fr;
   }
 
@@ -869,10 +845,15 @@ caption {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .shortcut-list div,
-  .shortcut-row {
-    grid-template-columns: 1fr;
-    justify-items: start;
+  .stopwatch-shortcut {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .stopwatch-shortcut > span {
+    grid-column: 1 / -1;
   }
 
   .shortcut-key,

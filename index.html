@@ -55,6 +55,12 @@
           <button id="addStopwatchBtn" class="button button-quiet" type="button">+ Stopwatch</button>
         </div>
 
+        <div class="shortcut-strip" aria-label="Keyboard shortcuts">
+          <span><kbd>Space</kbd> Start / Stop All</span>
+          <span><kbd>L</kbd> Lap All</span>
+          <p id="shortcutMessage" class="inline-message" role="status" aria-live="polite"></p>
+        </div>
+
         <div id="stopwatchList" class="stopwatch-list" aria-live="polite"></div>
       </section>
 
@@ -115,39 +121,6 @@
 
           <button id="testSoundBtn" class="button button-secondary" type="button">Test sound</button>
         </div>
-      </section>
-
-      <section class="workspace-section shortcuts-section" aria-labelledby="shortcutHeading">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">KEYBOARD SHORTCUTS</p>
-            <h2 id="shortcutHeading">Controls</h2>
-          </div>
-          <button id="editShortcutsBtn" class="button button-secondary" type="button">Edit shortcuts</button>
-        </div>
-
-        <div class="shortcut-layout">
-          <div class="shortcut-group" aria-label="Global shortcuts">
-            <h3>Global</h3>
-            <dl class="shortcut-list">
-              <div>
-                <dt>Space</dt>
-                <dd>Start / Stop All</dd>
-              </div>
-              <div>
-                <dt>L</dt>
-                <dd>Lap All</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div class="shortcut-group" aria-label="Stopwatch shortcuts">
-            <h3>Stopwatches</h3>
-            <div id="shortcutRows" class="shortcut-rows"></div>
-          </div>
-        </div>
-
-        <p id="shortcutMessage" class="inline-message" role="status" aria-live="polite"></p>
       </section>
 
       <section class="workspace-section export-section" aria-labelledby="exportHeading">
