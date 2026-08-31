@@ -79,9 +79,12 @@
       navStopwatch: "Stopwatch",
       navTimer: "Timer",
       openClockFullscreen: "Open full screen clock",
+      openTimerPip: "Open timer in Picture-in-Picture",
       overallVolumeLabel: "Overall volume",
       paused: "Stopped",
       pause: "PAUSE",
+      pictureInPicture: "PIP",
+      pipUnavailable: "Picture-in-Picture is not available in this browser",
       reset: "RESET",
       resetEventLog: "Reset event log",
       recentEventLog: "Recent event log",
@@ -175,9 +178,12 @@
       navStopwatch: "Stopwatch",
       navTimer: "Timer",
       openClockFullscreen: "Open klok volledig scherm",
+      openTimerPip: "Open timer in Picture-in-Picture",
       overallVolumeLabel: "Algemeen volume",
       paused: "Gestopt",
       pause: "PAUZE",
+      pictureInPicture: "PIP",
+      pipUnavailable: "Picture-in-Picture is niet beschikbaar in deze browser",
       reset: "RESET",
       resetEventLog: "Eventlog resetten",
       recentEventLog: "Recent eventlog",
@@ -271,9 +277,12 @@
       navStopwatch: "Stoppuhr",
       navTimer: "Timer",
       openClockFullscreen: "Uhr im Vollbild öffnen",
+      openTimerPip: "Timer in Picture-in-Picture öffnen",
       overallVolumeLabel: "Gesamtlautstärke",
       paused: "Gestoppt",
       pause: "PAUSE",
+      pictureInPicture: "PIP",
+      pipUnavailable: "Picture-in-Picture ist in diesem Browser nicht verfügbar",
       reset: "RESET",
       resetEventLog: "Ereignisprotokoll zurücksetzen",
       recentEventLog: "Letztes Ereignisprotokoll",
@@ -351,6 +360,10 @@
   let capturingStopwatchId = null;
   let pendingExpiredCountdownEvents = [];
   let activeFullscreenTimerId = null;
+  let activePictureInPictureTimerId = null;
+  let timerPictureInPictureWindow = null;
+  let timerPictureInPictureVideo = null;
+  let timerPictureInPictureCanvas = null;
   let pseudoFullscreenActive = false;
 
   function init() {
@@ -794,6 +807,8 @@
       removeCountdown(countdown);
     } else if (action === "fullscreen") {
       enterCountdownFullscreen(countdown);
+    } else if (action === "pip") {
+      openCountdownPictureInPicture(countdown);
     } else if (action === "test-sound") {
       playCountdownSound(countdown);
     }
@@ -1630,7 +1645,10 @@
         <div class="countdown-actions" role="group" aria-label="${escapeHtml(countdown.name)} ${escapeHtml(t("timerShortcutName"))}">
           <button class="button button-primary" type="button" data-countdown-action="toggle" data-timer-id="${escapeHtml(countdown.id)}" ${actionDisabled ? "disabled" : ""}>${escapeHtml(actionLabel)}</button>
           <button class="button button-danger" type="button" data-countdown-action="stop" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("stop"))}</button>
-          <button class="button button-quiet" type="button" data-countdown-action="fullscreen" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("fullscreen"))}</button>
+          <div class="countdown-display-actions">
+            <button class="button button-quiet" type="button" data-countdown-action="fullscreen" data-timer-id="${escapeHtml(countdown.id)}">${escapeHtml(t("fullscreen"))}</button>
+            <button class="button button-quiet" type="button" data-countdown-action="pip" data-timer-id="${escapeHtml(countdown.id)}" title="${escapeHtml(isTimerPictureInPictureSupported() ? t("openTimerPip") : t("pipUnavailable"))}" aria-label="${escapeHtml(t("openTimerPip"))}" aria-pressed="${activePictureInPictureTimerId === countdown.id ? "true" : "false"}" ${isTimerPictureInPictureSupported() ? "" : "disabled"}>${escapeHtml(t("pictureInPicture"))}</button>
+          </div>
           <button class="button button-quiet remove-timer-button" type="button" data-countdown-action="remove" data-timer-id="${escapeHtml(countdown.id)}" title="${escapeHtml(t("removeTimer"))}" ${state.countdowns.length <= 1 ? "disabled" : ""}>${escapeHtml(t("removeTimer"))}</button>
         </div>
       </article>
@@ -1775,6 +1793,180 @@
     const duration = Math.max(1, countdown.durationMs);
     const progress = countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
     elements.fullscreenProgressBar.style.transform = `scaleX(${progress})`;
+    updateCountdownPictureInPicture();
+  }
+
+  function isDocumentPictureInPictureSupported() {
+    return Boolean(
+      window.documentPictureInPicture
+      && typeof window.documentPictureInPicture.requestWindow === "function"
+    );
+  }
+
+  function isVideoPictureInPictureSupported() {
+    return Boolean(
+      document.pictureInPictureEnabled
+      && HTMLVideoElement.prototype.requestPictureInPicture
+    );
+  }
+
+  function isTimerPictureInPictureSupported() {
+    return isDocumentPictureInPictureSupported() || isVideoPictureInPictureSupported();
+  }
+
+  async function openCountdownPictureInPicture(countdown) {
+    if (!countdown || !isTimerPictureInPictureSupported()) {
+      return;
+    }
+
+    if (!isDocumentPictureInPictureSupported()) {
+      openVideoPictureInPicture(countdown);
+      return;
+    }
+
+    try {
+      if (timerPictureInPictureWindow && !timerPictureInPictureWindow.closed) {
+        timerPictureInPictureWindow.close();
+      }
+
+      activePictureInPictureTimerId = countdown.id;
+      timerPictureInPictureWindow = await window.documentPictureInPicture.requestWindow({
+        width: 420,
+        height: 190,
+      });
+      const pipDocument = timerPictureInPictureWindow.document;
+      pipDocument.title = countdown.name;
+      pipDocument.body.innerHTML = `
+        <main class="pip-timer" aria-live="polite">
+          <p id="pipTimerName" class="pip-timer-name"></p>
+          <output id="pipTimerTime" class="pip-timer-time">00:00:00</output>
+          <div class="pip-timer-progress" aria-hidden="true"><span id="pipTimerProgress"></span></div>
+        </main>
+      `;
+      pipDocument.head.innerHTML = `
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          :root { color-scheme: light dark; }
+          * { box-sizing: border-box; }
+          body { margin: 0; background: #10141f; color: #f4f7fb; font-family: Inter, system-ui, sans-serif; }
+          .pip-timer { display: grid; gap: 0.85rem; min-height: 100vh; padding: 1.1rem 1.25rem; align-content: center; text-align: center; }
+          .pip-timer-name { margin: 0; color: #b5c0d2; font-size: 0.9rem; font-weight: 750; overflow-wrap: anywhere; text-transform: uppercase; }
+          .pip-timer-time { color: #f4f7fb; font-family: Consolas, "Liberation Mono", monospace; font-size: clamp(2.4rem, 14vw, 5.2rem); font-variant-numeric: tabular-nums; font-weight: 800; line-height: 0.95; }
+          .pip-timer-progress { height: 0.45rem; overflow: hidden; border-radius: 99px; background: #303a4a; }
+          .pip-timer-progress span { display: block; width: 100%; height: 100%; background: #6da4ff; transform-origin: left center; }
+          .pip-timer.complete .pip-timer-time { color: #ff776d; }
+        </style>
+      `;
+      timerPictureInPictureWindow.addEventListener("pagehide", () => {
+        activePictureInPictureTimerId = null;
+        timerPictureInPictureWindow = null;
+        renderCountdown();
+      }, { once: true });
+      updateCountdownPictureInPicture();
+      renderCountdown();
+    } catch {
+      activePictureInPictureTimerId = null;
+      timerPictureInPictureWindow = null;
+      renderCountdown();
+    }
+  }
+
+  async function openVideoPictureInPicture(countdown) {
+    try {
+      closeTimerPictureInPicture();
+      activePictureInPictureTimerId = countdown.id;
+      timerPictureInPictureCanvas = document.createElement("canvas");
+      timerPictureInPictureCanvas.width = 960;
+      timerPictureInPictureCanvas.height = 360;
+      timerPictureInPictureVideo = document.createElement("video");
+      timerPictureInPictureVideo.muted = true;
+      timerPictureInPictureVideo.playsInline = true;
+      timerPictureInPictureVideo.setAttribute("aria-hidden", "true");
+      timerPictureInPictureVideo.style.cssText = "position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;";
+      timerPictureInPictureVideo.srcObject = timerPictureInPictureCanvas.captureStream(30);
+      timerPictureInPictureVideo.addEventListener("leavepictureinpicture", () => {
+        closeTimerPictureInPicture();
+        renderCountdown();
+      }, { once: true });
+      document.body.append(timerPictureInPictureVideo);
+      drawCountdownPictureInPicture(countdown);
+      await timerPictureInPictureVideo.play();
+      await timerPictureInPictureVideo.requestPictureInPicture();
+      renderCountdown();
+    } catch {
+      closeTimerPictureInPicture();
+      renderCountdown();
+    }
+  }
+
+  function updateCountdownPictureInPicture() {
+    const countdown = getCountdown(activePictureInPictureTimerId);
+    if (!countdown) {
+      closeTimerPictureInPicture();
+      return;
+    }
+
+    if (timerPictureInPictureCanvas) {
+      drawCountdownPictureInPicture(countdown);
+      return;
+    }
+    if (!timerPictureInPictureWindow || timerPictureInPictureWindow.closed) {
+      return;
+    }
+
+    const pipDocument = timerPictureInPictureWindow.document;
+    const remainingMs = getCountdownRemaining(countdown);
+    const duration = Math.max(1, countdown.durationMs);
+    const progress = countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
+    pipDocument.title = countdown.name;
+    pipDocument.getElementById("pipTimerName").textContent = countdown.name;
+    pipDocument.getElementById("pipTimerTime").textContent = formatCountdown(remainingMs);
+    pipDocument.getElementById("pipTimerProgress").style.transform = `scaleX(${progress})`;
+    pipDocument.querySelector(".pip-timer").classList.toggle("complete", countdown.status === "complete");
+  }
+
+  function drawCountdownPictureInPicture(countdown) {
+    if (!timerPictureInPictureCanvas) {
+      return;
+    }
+
+    const context = timerPictureInPictureCanvas.getContext("2d");
+    const width = timerPictureInPictureCanvas.width;
+    const height = timerPictureInPictureCanvas.height;
+    const remainingMs = getCountdownRemaining(countdown);
+    const duration = Math.max(1, countdown.durationMs);
+    const progress = countdown.status === "complete" ? 0 : clamp(remainingMs / duration, 0, 1);
+    context.fillStyle = "#10141f";
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = "#b5c0d2";
+    context.font = "700 34px system-ui";
+    context.textAlign = "center";
+    context.fillText(countdown.name.toUpperCase(), width / 2, 68, width - 80);
+    context.fillStyle = countdown.status === "complete" ? "#ff776d" : "#f4f7fb";
+    context.font = "800 154px Consolas, monospace";
+    context.fillText(formatCountdown(remainingMs), width / 2, 220);
+    context.fillStyle = "#303a4a";
+    context.fillRect(72, 284, width - 144, 14);
+    context.fillStyle = "#6da4ff";
+    context.fillRect(72, 284, (width - 144) * progress, 14);
+  }
+
+  function closeTimerPictureInPicture() {
+    if (timerPictureInPictureWindow && !timerPictureInPictureWindow.closed) {
+      timerPictureInPictureWindow.close();
+    }
+    if (timerPictureInPictureVideo) {
+      const stream = timerPictureInPictureVideo.srcObject;
+      if (stream && typeof stream.getTracks === "function") {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      timerPictureInPictureVideo.remove();
+    }
+    timerPictureInPictureWindow = null;
+    timerPictureInPictureVideo = null;
+    timerPictureInPictureCanvas = null;
+    activePictureInPictureTimerId = null;
   }
 
   function onFullscreenCountdownToggle() {

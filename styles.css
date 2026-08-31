@@ -791,6 +791,17 @@ caption {
   padding: 0.5rem 0.7rem;
 }
 
+.countdown-display-actions {
+  display: grid;
+  gap: 0.45rem;
+  align-self: stretch;
+  grid-template-rows: repeat(2, minmax(2.15rem, 1fr));
+}
+
+.countdown-display-actions .button {
+  width: 100%;
+}
+
 .countdown-row .countdown-actions .remove-timer-button,
 .stopwatch-row .timer-actions .remove-stopwatch-button {
   position: absolute;
