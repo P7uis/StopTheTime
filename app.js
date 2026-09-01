@@ -49,6 +49,10 @@
       eventTimerReset: "timer reset",
       eventTimerStart: "timer started",
       eventTimerStop: "timer stopped",
+      eventStopwatchLap: "lap recorded",
+      eventStopwatchReset: "stopwatch reset",
+      eventStopwatchStart: "stopwatch started",
+      eventStopwatchStop: "stopwatch stopped",
       exit: "Exit",
       exitClockFullscreen: "Exit full screen clock",
       exitFullscreen: "Exit fullscreen countdown",
@@ -155,6 +159,10 @@
       eventTimerReset: "timer teruggezet",
       eventTimerStart: "timer gestart",
       eventTimerStop: "timer gestopt",
+      eventStopwatchLap: "ronde opgenomen",
+      eventStopwatchReset: "stopwatch teruggezet",
+      eventStopwatchStart: "stopwatch gestart",
+      eventStopwatchStop: "stopwatch gestopt",
       exit: "Sluiten",
       exitClockFullscreen: "Sluit klok volledig scherm",
       exitFullscreen: "Sluit timer volledig scherm",
@@ -261,6 +269,10 @@
       eventTimerReset: "Timer zurückgesetzt",
       eventTimerStart: "Timer gestartet",
       eventTimerStop: "Timer gestoppt",
+      eventStopwatchLap: "Runde aufgezeichnet",
+      eventStopwatchReset: "Stoppuhr zurückgesetzt",
+      eventStopwatchStart: "Stoppuhr gestartet",
+      eventStopwatchStop: "Stoppuhr gestoppt",
       exit: "Schließen",
       exitClockFullscreen: "Uhr im Vollbild schließen",
       exitFullscreen: "Timer-Vollbild schließen",
@@ -406,6 +418,7 @@
           stopwatchName: countdown.name,
           eventType: "countdown_complete",
           elapsedMs: countdown.durationMs,
+          remainingMs: 0,
         });
       });
       pendingExpiredCountdownEvents = [];
@@ -2622,6 +2635,10 @@
       countdown_reset: "eventTimerReset",
       countdown_start: "eventTimerStart",
       countdown_stop: "eventTimerStop",
+      lap: "eventStopwatchLap",
+      reset: "eventStopwatchReset",
+      start: "eventStopwatchStart",
+      stop: "eventStopwatchStop",
     };
     return labels[eventType] ? t(labels[eventType]) : eventType.replace(/^countdown_/, "timer_").replace(/_/g, " ");
   }
