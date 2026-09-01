@@ -970,7 +970,11 @@
     if (stopwatch) {
       event.preventDefault();
       if (stopwatch.shortcutAction === "lap") {
-        lapStopwatch(stopwatch);
+        if (stopwatch.status === "running") {
+          lapStopwatch(stopwatch);
+        } else {
+          startStopwatch(stopwatch);
+        }
       } else {
         toggleStopwatch(stopwatch);
       }
