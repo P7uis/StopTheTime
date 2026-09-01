@@ -2084,7 +2084,9 @@
       event.lapNumber === "" ? "" : event.lapNumber,
       event.splitMs === "" ? "" : formatElapsedHms(event.splitMs),
     ]);
-    const csv = [header, ...rows].map((row) => row.map(csvEscape).join(";")).join("\r\n");
+    const csv = ["sep=,", header, ...rows].map((row) => (
+      Array.isArray(row) ? row.map(csvEscape).join(",") : row
+    )).join("\r\n");
     const blob = new Blob([`\uFEFF${csv}\r\n`], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
