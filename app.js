@@ -6,7 +6,7 @@
   const LANGUAGE_KEY = "stop-the-time.language";
   const SAVE_DELAY_MS = 120;
   const ALARM_DURATION_SECONDS = 5;
-  const SOUND_VALUES = ["beep", "chime", "bell", "ring", "mute"];
+  const SOUND_VALUES = ["beep", "chime", "bell", "ring", "buzzer", "mute"];
   const DEFAULT_COLORS = ["#2563eb", "#13895f", "#7c3aed", "#c2413a", "#b7791f", "#0891b2"];
   const DEFAULT_SHORTCUTS = [
     { code: "KeyA", label: "A" },
@@ -110,6 +110,7 @@
       shortcutPressKey: "Press a key...",
       soundBeep: "Beep",
       soundBell: "Bell",
+      soundBuzzer: "Buzzer",
       soundChime: "Chime",
       soundLabel: "Sound",
       soundMute: "Mute",
@@ -220,6 +221,7 @@
       shortcutPressKey: "Druk een toets...",
       soundBeep: "Beep",
       soundBell: "Bel",
+      soundBuzzer: "Buzzer",
       soundChime: "Chime",
       soundLabel: "Geluid",
       soundMute: "Stil",
@@ -330,6 +332,7 @@
       shortcutPressKey: "Taste drücken...",
       soundBeep: "Beep",
       soundBell: "Glocke",
+      soundBuzzer: "Summer",
       soundChime: "Chime",
       soundLabel: "Klang",
       soundMute: "Stumm",
@@ -1688,6 +1691,7 @@
             <option value="chime" ${countdown.sound === "chime" ? "selected" : ""}>${escapeHtml(t("soundChime"))}</option>
             <option value="bell" ${countdown.sound === "bell" ? "selected" : ""}>${escapeHtml(t("soundBell"))}</option>
             <option value="ring" ${countdown.sound === "ring" ? "selected" : ""}>${escapeHtml(t("soundRing"))}</option>
+            <option value="buzzer" ${countdown.sound === "buzzer" ? "selected" : ""}>${escapeHtml(t("soundBuzzer"))}</option>
             <option value="mute" ${countdown.sound === "mute" ? "selected" : ""}>${escapeHtml(t("soundMute"))}</option>
           </select>
         </div>
@@ -2351,6 +2355,10 @@
           for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.625) {
             scheduleRing(context, master, offset);
           }
+        } else if (sound === "buzzer") {
+          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.42) {
+            scheduleBuzzer(context, master, offset);
+          }
         } else {
           for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.82) {
             scheduleSignal(context, master, offset);
@@ -2417,6 +2425,11 @@
       const strikeOffset = offset + (index * 0.12);
       scheduleAlarmBellStrike(context, output, frequency, strikeOffset);
     });
+  }
+
+  function scheduleBuzzer(context, output, offset) {
+    scheduleTone(context, output, 185, offset, 0.16, "square", 0.78, 0.002);
+    scheduleTone(context, output, 370, offset + 0.008, 0.15, "square", 0.18, 0.002);
   }
 
   function scheduleAlarmBellStrike(context, output, frequency, offset) {
