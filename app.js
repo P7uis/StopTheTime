@@ -159,7 +159,7 @@
       eventTimerReset: "timer teruggezet",
       eventTimerStart: "timer gestart",
       eventTimerStop: "timer gestopt",
-      eventStopwatchLap: "ronde opgenomen",
+      eventStopwatchLap: "ronde",
       eventStopwatchReset: "stopwatch teruggezet",
       eventStopwatchStart: "stopwatch gestart",
       eventStopwatchStop: "stopwatch gestopt",
