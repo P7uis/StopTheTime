@@ -86,6 +86,7 @@
       pictureInPicture: "PIP",
       pipUnavailable: "Picture-in-Picture is not available in this browser",
       reset: "RESET",
+      resetAll: "RESET ALL",
       resetEventLog: "Reset event log",
       recentEventLog: "Recent event log",
       removeStopwatch: "DELETE",
@@ -185,6 +186,7 @@
       pictureInPicture: "PIP",
       pipUnavailable: "Picture-in-Picture is niet beschikbaar in deze browser",
       reset: "RESET",
+      resetAll: "RESET ALLES",
       resetEventLog: "Eventlog resetten",
       recentEventLog: "Recent eventlog",
       removeStopwatch: "VERWIJDER",
@@ -284,6 +286,7 @@
       pictureInPicture: "PIP",
       pipUnavailable: "Picture-in-Picture ist in diesem Browser nicht verfügbar",
       reset: "RESET",
+      resetAll: "ALLE ZURÜCKSETZEN",
       resetEventLog: "Ereignisprotokoll zurücksetzen",
       recentEventLog: "Letztes Ereignisprotokoll",
       removeStopwatch: "LÖSCHEN",
@@ -409,6 +412,7 @@
     elements.startAllBtn = document.getElementById("startAllBtn");
     elements.stopAllBtn = document.getElementById("stopAllBtn");
     elements.lapAllBtn = document.getElementById("lapAllBtn");
+    elements.resetAllBtn = document.getElementById("resetAllBtn");
     elements.addStopwatchBtn = document.getElementById("addStopwatchBtn");
     elements.stopwatchList = document.getElementById("stopwatchList");
     elements.countdownSection = document.querySelector(".countdown-section");
@@ -677,6 +681,7 @@
     elements.startAllBtn.addEventListener("click", startAllStopwatches);
     elements.stopAllBtn.addEventListener("click", stopAllStopwatches);
     elements.lapAllBtn.addEventListener("click", lapAllStopwatches);
+    elements.resetAllBtn.addEventListener("click", resetAllStopwatches);
     elements.startAllTimersBtn.addEventListener("click", startAllCountdowns);
     elements.pauseAllTimersBtn.addEventListener("click", pauseAllCountdowns);
     elements.stopAllTimersBtn.addEventListener("click", stopAndResetAllCountdowns);
@@ -1118,6 +1123,11 @@
     if (changed) {
       render();
     }
+  }
+
+  function resetAllStopwatches() {
+    state.stopwatches.forEach((stopwatch) => resetStopwatch(stopwatch, false));
+    render();
   }
 
   function toggleAllStopwatches() {
