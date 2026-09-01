@@ -107,7 +107,9 @@
       sessionMeta: "{stopwatches} {stopwatchWord} - {running} running - {events} {eventWord}",
       setKey: "Set key",
       shortcut: "Shortcut",
+      shortcutAction: "Action",
       shortcutPressKey: "Press a key...",
+      shortcutStartStop: "Start / stop",
       soundBeep: "Beep",
       soundBell: "Bell",
       soundBuzzer: "Buzzer",
@@ -218,7 +220,9 @@
       sessionMeta: "{stopwatches} {stopwatchWord} - {running} actief - {events} {eventWord}",
       setKey: "Kies toets",
       shortcut: "Toets",
+      shortcutAction: "Actie",
       shortcutPressKey: "Druk een toets...",
+      shortcutStartStop: "Start / stop",
       soundBeep: "Beep",
       soundBell: "Bel",
       soundBuzzer: "Buzzer",
@@ -329,7 +333,9 @@
       sessionMeta: "{stopwatches} {stopwatchWord} - {running} aktiv - {events} {eventWord}",
       setKey: "Taste wählen",
       shortcut: "Taste",
+      shortcutAction: "Aktion",
       shortcutPressKey: "Taste drücken...",
+      shortcutStartStop: "Start / Stopp",
       soundBeep: "Beep",
       soundBell: "Glocke",
       soundBuzzer: "Summer",
@@ -537,6 +543,7 @@
       startedAtEpoch: null,
       shortcutCode: shortcut ? shortcut.code : "",
       shortcutLabel: shortcut ? shortcut.label : "",
+      shortcutAction: "toggle",
       lapsOpen: true,
       laps: [],
     };
@@ -574,6 +581,7 @@
         : [];
       normalized.shortcutCode = typeof normalized.shortcutCode === "string" ? normalized.shortcutCode : "";
       normalized.shortcutLabel = typeof normalized.shortcutLabel === "string" ? normalized.shortcutLabel : "";
+      normalized.shortcutAction = normalized.shortcutAction === "lap" ? "lap" : "toggle";
 
       if (normalized.status === "running") {
         const carriedMs = Math.max(0, nowEpochValue - toSafeNumber(normalized.startedAtEpoch, nowEpochValue));
@@ -929,6 +937,10 @@
       setShortcutMessage(`${stopwatch.name}: shortcut cleared.`);
       renderStopwatches();
       scheduleSave();
+    } else if (keyButton.dataset.shortcutAction === "mode") {
+      stopwatch.shortcutAction = keyButton.dataset.shortcutMode === "lap" ? "lap" : "toggle";
+      renderStopwatches();
+      scheduleSave();
     }
   }
 
@@ -957,7 +969,11 @@
     const stopwatch = state.stopwatches.find((item) => item.shortcutCode === event.code);
     if (stopwatch) {
       event.preventDefault();
-      toggleStopwatch(stopwatch);
+      if (stopwatch.shortcutAction === "lap") {
+        lapStopwatch(stopwatch);
+      } else {
+        toggleStopwatch(stopwatch);
+      }
     }
   }
 
@@ -1618,6 +1634,25 @@
                 data-stopwatch-id="${escapeHtml(stopwatch.id)}"
                 ${stopwatch.shortcutCode ? "" : "disabled"}
               >${escapeHtml(t("clear"))}</button>
+              <span class="shortcut-mode-label">${escapeHtml(t("shortcutAction"))}</span>
+              <div class="shortcut-mode" role="group" aria-label="${escapeHtml(stopwatch.name)} ${escapeHtml(t("shortcutAction"))}">
+                <button
+                  class="shortcut-mode-button"
+                  type="button"
+                  data-shortcut-action="mode"
+                  data-shortcut-mode="toggle"
+                  data-stopwatch-id="${escapeHtml(stopwatch.id)}"
+                  aria-pressed="${stopwatch.shortcutAction === "toggle" ? "true" : "false"}"
+                >${escapeHtml(t("shortcutStartStop"))}</button>
+                <button
+                  class="shortcut-mode-button"
+                  type="button"
+                  data-shortcut-action="mode"
+                  data-shortcut-mode="lap"
+                  data-stopwatch-id="${escapeHtml(stopwatch.id)}"
+                  aria-pressed="${stopwatch.shortcutAction === "lap" ? "true" : "false"}"
+                >${escapeHtml(t("lap"))}</button>
+              </div>
             </div>
           </div>
 

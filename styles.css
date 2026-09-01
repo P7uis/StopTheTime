@@ -1053,6 +1053,45 @@ html[lang="nl"] .countdown-display-actions [data-countdown-action="fullscreen"] 
   font-size: 0.82rem;
 }
 
+.shortcut-mode-label {
+  margin-left: 0.35rem;
+}
+
+.shortcut-mode {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.shortcut-mode-button {
+  min-height: 2.15rem;
+  padding: 0.35rem 0.55rem;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.shortcut-mode-button:last-child {
+  border-right: 0;
+}
+
+.shortcut-mode-button[aria-pressed="true"] {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.shortcut-mode-button:hover:not([aria-pressed="true"]) {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
 .inline-message {
   flex: 1 1 18rem;
   min-height: 1.4rem;
