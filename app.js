@@ -37,7 +37,7 @@
       appearance: "Appearance",
       clear: "Clear",
       complete: "Complete",
-      confirmNewSession: "Start a new session and reset all timers to five minutes? This clears the current event log. Export it first if you need this data.",
+      confirmNewSession: "Start a new session with the default stopwatch and five-minute timer? This removes custom timers and stopwatches and clears the current event log. Export it first if you need this data.",
       confirmRemoveStopwatch: "Remove this stopwatch? This cannot be undone.",
       confirmRemoveTimer: "Remove this timer? This cannot be undone.",
       confirmResetEventLog: "Reset the event log and start a clean session? This removes all recorded events. Export it first if you need this data.",
@@ -150,7 +150,7 @@
       appearance: "Weergave",
       clear: "Wissen",
       complete: "Klaar",
-      confirmNewSession: "Nieuwe sessie starten en alle timers terugzetten naar vijf minuten? Dit wist het huidige eventlog. Exporteer het eerst als je deze gegevens nodig hebt.",
+      confirmNewSession: "Nieuwe sessie starten met de standaardstopwatch en timer van vijf minuten? Dit verwijdert eigen timers en stopwatches en wist het huidige eventlog. Exporteer het eerst als je deze gegevens nodig hebt.",
       confirmRemoveStopwatch: "Deze stopwatch verwijderen? Dit kan niet ongedaan worden gemaakt.",
       confirmRemoveTimer: "Deze timer verwijderen? Dit kan niet ongedaan worden gemaakt.",
       confirmResetEventLog: "Eventlog resetten en een schone sessie starten? Dit verwijdert alle opgenomen gebeurtenissen. Exporteer het eerst als je deze gegevens nodig hebt.",
@@ -263,7 +263,7 @@
       appearance: "Darstellung",
       clear: "Löschen",
       complete: "Fertig",
-      confirmNewSession: "Neue Sitzung starten und alle Timer auf fünf Minuten zurücksetzen? Dadurch wird das aktuelle Ereignisprotokoll gelöscht. Exportiere es zuerst, wenn du diese Daten brauchst.",
+      confirmNewSession: "Neue Sitzung mit der Standard-Stoppuhr und dem Fünf-Minuten-Timer starten? Dadurch werden eigene Timer und Stoppuhren sowie das aktuelle Ereignisprotokoll gelöscht. Exportiere es zuerst, wenn du diese Daten brauchst.",
       confirmRemoveStopwatch: "Diese Stoppuhr löschen? Das kann nicht rückgängig gemacht werden.",
       confirmRemoveTimer: "Diesen Timer löschen? Das kann nicht rückgängig gemacht werden.",
       confirmResetEventLog: "Ereignisprotokoll zurücksetzen und eine saubere Sitzung starten? Das entfernt alle aufgezeichneten Ereignisse. Exportiere es zuerst, wenn du diese Daten brauchst.",
@@ -1267,31 +1267,24 @@
     startCleanSession();
   }
 
-  function startCleanSession(useDefaultTimerDuration = false) {
-    state.stopwatches = state.stopwatches.map((stopwatch) => ({
-      ...stopwatch,
-      status: "idle",
-      baseElapsedMs: 0,
-      startedAtPerf: null,
-      startedAtEpoch: null,
-      laps: [],
-    }));
-    state.countdowns.forEach((countdown) => {
-      if (useDefaultTimerDuration) {
-        countdown.hours = 0;
-        countdown.minutes = 5;
-        countdown.seconds = 0;
-        countdown.durationMs = durationFromParts(0, 5, 0);
-        countdown.remainingMs = countdown.durationMs;
-        countdown.status = "idle";
-        countdown.startedAtPerf = null;
-        countdown.startedAtEpoch = null;
-        countdown.endAtPerf = null;
-        countdown.endAtEpoch = null;
-      } else {
-        resetCountdown(countdown, false, false);
-      }
-    });
+  function startCleanSession(useDefaultDevices = false) {
+    if (useDefaultDevices) {
+      state.stopwatches = [
+        createStopwatch(`${t("stopwatchDefaultName")} 1`, DEFAULT_COLORS[0], DEFAULT_SHORTCUTS[0]),
+      ];
+      state.countdowns = [createCountdown(`${t("timerDefaultName")} 1`, 0, 5, 0)];
+      closeTimerPictureInPicture();
+    } else {
+      state.stopwatches = state.stopwatches.map((stopwatch) => ({
+        ...stopwatch,
+        status: "idle",
+        baseElapsedMs: 0,
+        startedAtPerf: null,
+        startedAtEpoch: null,
+        laps: [],
+      }));
+      state.countdowns.forEach((countdown) => resetCountdown(countdown, false, false));
+    }
     state.sessionId = makeId("session");
     state.createdAt = new Date().toISOString();
     state.eventLog = [];
