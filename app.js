@@ -2356,9 +2356,7 @@
             scheduleRing(context, master, offset);
           }
         } else if (sound === "buzzer") {
-          for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.42) {
-            scheduleBuzzer(context, master, offset);
-          }
+          scheduleBuzzer(context, master, 0, ALARM_DURATION_SECONDS);
         } else {
           for (let offset = 0; offset < ALARM_DURATION_SECONDS; offset += 0.82) {
             scheduleSignal(context, master, offset);
@@ -2427,9 +2425,9 @@
     });
   }
 
-  function scheduleBuzzer(context, output, offset) {
-    scheduleTone(context, output, 185, offset, 0.16, "square", 0.78, 0.002);
-    scheduleTone(context, output, 370, offset + 0.008, 0.15, "square", 0.18, 0.002);
+  function scheduleBuzzer(context, output, offset, duration) {
+    scheduleTone(context, output, 110, offset, duration, "sawtooth", 0.62, 0.005);
+    scheduleTone(context, output, 220, offset, duration, "square", 0.16, 0.005);
   }
 
   function scheduleAlarmBellStrike(context, output, frequency, offset) {
