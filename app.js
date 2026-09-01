@@ -2657,12 +2657,12 @@
 
   function formatElapsedHmsMs(ms) {
     const totalMs = Math.max(0, Math.floor(ms));
-    const milliseconds = totalMs % 1000;
+    const hundredths = Math.floor((totalMs % 1000) / 10);
     const totalSeconds = Math.floor(totalMs / 1000);
     const seconds = totalSeconds % 60;
     const minutes = Math.floor(totalSeconds / 60) % 60;
     const hours = Math.floor(totalSeconds / 3600);
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${String(milliseconds).padStart(3, "0")}`;
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(hundredths)}`;
   }
 
   function formatCountdown(ms) {
