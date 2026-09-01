@@ -57,7 +57,9 @@
       csvEnd: "End",
       csvEvent: "Event",
       csvLap: "Lap",
+      csvLapElapsed: "Lap {number} time",
       csvLapNumber: "Lap {number}",
+      csvLapTotal: "Lap {number} total",
       csvName: "Name",
       csvSplit: "Split",
       csvStopwatch: "Stopwatch",
@@ -160,7 +162,9 @@
       csvEnd: "Stop / einde",
       csvEvent: "Gebeurtenis",
       csvLap: "Ronde",
+      csvLapElapsed: "Ronde {number} tijd",
       csvLapNumber: "Ronde {number}",
+      csvLapTotal: "Ronde {number} totaal",
       csvName: "Naam",
       csvSplit: "Tussentijd",
       csvStopwatch: "Stopwatch",
@@ -263,7 +267,9 @@
       csvEnd: "Stopp / Ende",
       csvEvent: "Ereignis",
       csvLap: "Runde",
+      csvLapElapsed: "Runde {number} Zeit",
       csvLapNumber: "Runde {number}",
+      csvLapTotal: "Runde {number} gesamt",
       csvName: "Name",
       csvSplit: "Zwischenzeit",
       csvStopwatch: "Stoppuhr",
@@ -2080,7 +2086,10 @@
       t("csvType"),
       t("csvName"),
       t("csvStart"),
-      ...Array.from({ length: lapCount }, (_, index) => formatText("csvLapNumber", { number: index + 1 })),
+      ...Array.from({ length: lapCount }, (_, index) => [
+        formatText("csvLapElapsed", { number: index + 1 }),
+        formatText("csvLapTotal", { number: index + 1 }),
+      ]).flat(),
       t("csvEnd"),
       t("csvElapsed"),
     ];
@@ -2089,8 +2098,8 @@
       run.type,
       run.name,
       run.start,
-      ...run.laps,
-      ...Array(Math.max(0, lapCount - run.laps.length)).fill(""),
+      ...run.laps.flatMap((lap) => [lap.elapsed, lap.total]),
+      ...Array(Math.max(0, lapCount - run.laps.length) * 2).fill(""),
       run.end,
       run.elapsed,
     ]);
@@ -2129,7 +2138,10 @@
           runs.push(run);
           activeRuns.set(key, run);
         }
-        run.laps.push(formatEventTime(event.timestamp));
+        run.laps.push({
+          elapsed: formatElapsedHms(event.splitMs),
+          total: formatElapsedHms(event.elapsedMs),
+        });
         return;
       }
 
