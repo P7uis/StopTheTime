@@ -496,7 +496,7 @@
       stopwatches: [0].map((index) =>
         createStopwatch(`Stopwatch ${index + 1}`, DEFAULT_COLORS[index], DEFAULT_SHORTCUTS[index])
       ),
-      countdowns: [createCountdown("Timer 1", 0, 0, 5)],
+      countdowns: [createCountdown("Timer 1", 0, 5, 0)],
       timerSettings: {
         volume: 100,
       },
@@ -587,7 +587,7 @@
 
     const savedCountdowns = Array.isArray(state.countdowns) && state.countdowns.length
       ? state.countdowns
-      : [state.countdown || createCountdown("Timer 1", 0, 0, 5)];
+      : [state.countdown || createCountdown("Timer 1", 0, 5, 0)];
     const legacyTimerSettings = normalizeTimerSettings(state.timerSettings || state.countdown || {});
     state.countdowns = savedCountdowns.map((countdown, index) => (
       normalizeCountdown(countdown, index, legacyTimerSettings.sound)
@@ -632,7 +632,7 @@
   }
 
   function normalizeCountdown(saved, index, fallbackSound) {
-    const fallback = createCountdown(`Timer ${index + 1}`, 0, 0, index === 0 ? 5 : 60);
+    const fallback = createCountdown(`Timer ${index + 1}`, 0, 5, 0);
     const countdown = { ...fallback, ...saved };
     countdown.id = typeof countdown.id === "string" ? countdown.id : makeId("timer");
     countdown.name = String(countdown.name || `Timer ${index + 1}`);
@@ -1194,7 +1194,7 @@
 
   function addCountdown() {
     const number = state.countdowns.length + 1;
-    const countdown = createCountdown(`${t("timerDefaultName")} ${number}`, 0, 1, 0);
+    const countdown = createCountdown(`${t("timerDefaultName")} ${number}`, 0, 5, 0);
     state.countdowns.push(countdown);
     render();
     scheduleSave();
