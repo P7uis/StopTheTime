@@ -2426,8 +2426,29 @@
   }
 
   function scheduleBuzzer(context, output, offset, duration) {
-    scheduleTone(context, output, 110, offset, duration, "sawtooth", 0.62, 0.005);
-    scheduleTone(context, output, 220, offset, duration, "square", 0.16, 0.005);
+    const oscillator = context.createOscillator();
+    const envelope = context.createGain();
+    const tremolo = context.createOscillator();
+    const tremoloGain = context.createGain();
+    const start = context.currentTime + offset;
+    const end = start + duration;
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(2400, start);
+    envelope.gain.setValueAtTime(0.0001, start);
+    envelope.gain.exponentialRampToValueAtTime(0.54, start + 0.004);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, end);
+    tremolo.type = "square";
+    tremolo.frequency.setValueAtTime(18, start);
+    tremoloGain.gain.setValueAtTime(0.18, start);
+    tremolo.connect(tremoloGain);
+    tremoloGain.connect(envelope.gain);
+    oscillator.connect(envelope);
+    envelope.connect(output);
+    oscillator.start(start);
+    tremolo.start(start);
+    oscillator.stop(end + 0.03);
+    tremolo.stop(end + 0.03);
   }
 
   function scheduleAlarmBellStrike(context, output, frequency, offset) {
