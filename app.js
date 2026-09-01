@@ -2139,8 +2139,8 @@
           activeRuns.set(key, run);
         }
         run.laps.push({
-          elapsed: formatElapsedHms(event.splitMs),
-          total: formatElapsedHms(event.elapsedMs),
+          elapsed: formatExportElapsed(event.splitMs, isTimer),
+          total: formatExportElapsed(event.elapsedMs, isTimer),
         });
         return;
       }
@@ -2149,7 +2149,7 @@
         const run = activeRuns.get(key);
         if (run) {
           run.end = formatEventTime(event.timestamp);
-          run.elapsed = formatElapsedHms(event.elapsedMs);
+          run.elapsed = formatExportElapsed(event.elapsedMs, isTimer);
           activeRuns.delete(key);
         }
       }
@@ -2168,6 +2168,10 @@
       end: "",
       elapsed: "",
     };
+  }
+
+  function formatExportElapsed(ms, isTimer) {
+    return isTimer ? formatElapsedHms(ms) : formatElapsedHmsMs(ms);
   }
 
   function applyLanguage(language) {
@@ -2649,6 +2653,16 @@
     const minutes = Math.floor(totalSeconds / 60) % 60;
     const hours = Math.floor(totalSeconds / 3600);
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  function formatElapsedHmsMs(ms) {
+    const totalMs = Math.max(0, Math.floor(ms));
+    const milliseconds = totalMs % 1000;
+    const totalSeconds = Math.floor(totalMs / 1000);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${String(milliseconds).padStart(3, "0")}`;
   }
 
   function formatCountdown(ms) {
