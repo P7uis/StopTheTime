@@ -61,6 +61,7 @@
       csvLapNumber: "Lap {number}",
       csvLapTotal: "Lap {number} total",
       csvName: "Name",
+      csvRemaining: "Remaining",
       csvSplit: "Split",
       csvStopwatch: "Stopwatch",
       csvStart: "Start",
@@ -166,6 +167,7 @@
       csvLapNumber: "Ronde {number}",
       csvLapTotal: "Ronde {number} totaal",
       csvName: "Naam",
+      csvRemaining: "Resterende tijd",
       csvSplit: "Tussentijd",
       csvStopwatch: "Stopwatch",
       csvStart: "Start",
@@ -271,6 +273,7 @@
       csvLapNumber: "Runde {number}",
       csvLapTotal: "Runde {number} gesamt",
       csvName: "Name",
+      csvRemaining: "Restzeit",
       csvSplit: "Zwischenzeit",
       csvStopwatch: "Stoppuhr",
       csvStart: "Start",
@@ -596,6 +599,9 @@
       splitMs: event.splitMs === "" || event.splitMs === null || event.splitMs === undefined
         ? ""
         : Math.max(0, Math.round(toSafeNumber(event.splitMs))),
+      remainingMs: event.remainingMs === "" || event.remainingMs === null || event.remainingMs === undefined
+        ? ""
+        : Math.max(0, Math.round(toSafeNumber(event.remainingMs))),
     };
   }
 
@@ -1274,6 +1280,7 @@
       stopwatchName: countdown.name,
       eventType: "countdown_start",
       elapsedMs: countdown.durationMs - remainingMs,
+      remainingMs,
     });
 
     if (shouldRender) {
@@ -1301,6 +1308,7 @@
       stopwatchName: countdown.name,
       eventType: "countdown_stop",
       elapsedMs: countdown.durationMs - countdown.remainingMs,
+      remainingMs: countdown.remainingMs,
     });
 
     if (shouldRender) {
@@ -1354,7 +1362,8 @@
       return false;
     }
 
-    const elapsedMs = countdown.durationMs - getCountdownRemaining(countdown);
+    const remainingMs = getCountdownRemaining(countdown);
+    const elapsedMs = countdown.durationMs - remainingMs;
     countdown.status = "idle";
     countdown.remainingMs = countdown.durationMs;
     countdown.startedAtPerf = null;
@@ -1368,6 +1377,7 @@
         stopwatchName: countdown.name,
         eventType: "countdown_reset",
         elapsedMs,
+        remainingMs,
       });
     }
 
@@ -1400,6 +1410,7 @@
       stopwatchName: countdown.name,
       eventType: "countdown_complete",
       elapsedMs: countdown.durationMs,
+      remainingMs: 0,
     });
 
     playCountdownSound(countdown);
@@ -1514,6 +1525,7 @@
       elapsedMs: event.elapsedMs,
       lapNumber: event.lapNumber,
       splitMs: event.splitMs,
+      remainingMs: event.remainingMs,
     }));
     scheduleSave();
   }
@@ -2092,6 +2104,7 @@
       ]).flat(),
       t("csvEnd"),
       t("csvElapsed"),
+      t("csvRemaining"),
     ];
     const rows = exportRuns.map((run) => [
       run.date,
@@ -2102,6 +2115,7 @@
       ...Array(Math.max(0, lapCount - run.laps.length) * 2).fill(""),
       run.end,
       run.elapsed,
+      run.remaining,
     ]);
     const csv = ["sep=,", header, ...rows].map((row) => (
       Array.isArray(row) ? row.map(csvEscape).join(",") : row
@@ -2150,6 +2164,7 @@
         if (run) {
           run.end = formatEventTime(event.timestamp);
           run.elapsed = formatExportElapsed(event.elapsedMs, isTimer);
+          run.remaining = isTimer ? formatExportRemaining(event.remainingMs) : "";
           activeRuns.delete(key);
         }
       }
@@ -2167,11 +2182,16 @@
       laps: [],
       end: "",
       elapsed: "",
+      remaining: isCountdownEvent(event) ? formatExportRemaining(event.remainingMs) : "",
     };
   }
 
   function formatExportElapsed(ms, isTimer) {
     return isTimer ? formatElapsedHms(ms) : formatElapsedHmsMs(ms);
+  }
+
+  function formatExportRemaining(ms) {
+    return ms === "" || ms === null || ms === undefined ? "" : formatElapsedHms(ms);
   }
 
   function applyLanguage(language) {
