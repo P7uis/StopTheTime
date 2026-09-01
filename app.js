@@ -54,11 +54,14 @@
       exitFullscreen: "Exit fullscreen countdown",
       csvDate: "Date",
       csvElapsed: "Elapsed",
+      csvEnd: "End",
       csvEvent: "Event",
       csvLap: "Lap",
+      csvLapNumber: "Lap {number}",
       csvName: "Name",
       csvSplit: "Split",
       csvStopwatch: "Stopwatch",
+      csvStart: "Start",
       csvTime: "Time",
       csvTimer: "Timer",
       csvType: "Type",
@@ -154,11 +157,14 @@
       exitFullscreen: "Sluit timer volledig scherm",
       csvDate: "Datum",
       csvElapsed: "Verstreken tijd",
+      csvEnd: "Stop / einde",
       csvEvent: "Gebeurtenis",
       csvLap: "Ronde",
+      csvLapNumber: "Ronde {number}",
       csvName: "Naam",
       csvSplit: "Tussentijd",
       csvStopwatch: "Stopwatch",
+      csvStart: "Start",
       csvTime: "Tijd",
       csvTimer: "Timer",
       csvType: "Soort",
@@ -254,11 +260,14 @@
       exitFullscreen: "Timer-Vollbild schließen",
       csvDate: "Datum",
       csvElapsed: "Verstrichene Zeit",
+      csvEnd: "Stopp / Ende",
       csvEvent: "Ereignis",
       csvLap: "Runde",
+      csvLapNumber: "Runde {number}",
       csvName: "Name",
       csvSplit: "Zwischenzeit",
       csvStopwatch: "Stoppuhr",
+      csvStart: "Start",
       csvTime: "Uhrzeit",
       csvTimer: "Timer",
       csvType: "Typ",
@@ -2064,25 +2073,26 @@
   }
 
   function exportCsv() {
+    const exportRuns = buildExportRuns();
+    const lapCount = exportRuns.reduce((maximum, run) => Math.max(maximum, run.laps.length), 0);
     const header = [
       t("csvDate"),
-      t("csvTime"),
       t("csvType"),
       t("csvName"),
-      t("csvEvent"),
+      t("csvStart"),
+      ...Array.from({ length: lapCount }, (_, index) => formatText("csvLapNumber", { number: index + 1 })),
+      t("csvEnd"),
       t("csvElapsed"),
-      t("csvLap"),
-      t("csvSplit"),
     ];
-    const rows = state.eventLog.map((event) => [
-      formatCsvDate(event.timestamp),
-      formatEventTime(event.timestamp),
-      isCountdownEvent(event) ? t("csvTimer") : t("csvStopwatch"),
-      event.stopwatchName,
-      exportEventLabel(event),
-      formatElapsedHms(event.elapsedMs),
-      event.lapNumber === "" ? "" : event.lapNumber,
-      event.splitMs === "" ? "" : formatElapsedHms(event.splitMs),
+    const rows = exportRuns.map((run) => [
+      run.date,
+      run.type,
+      run.name,
+      run.start,
+      ...run.laps,
+      ...Array(Math.max(0, lapCount - run.laps.length)).fill(""),
+      run.end,
+      run.elapsed,
     ]);
     const csv = ["sep=,", header, ...rows].map((row) => (
       Array.isArray(row) ? row.map(csvEscape).join(",") : row
@@ -2095,6 +2105,57 @@
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  }
+
+  function buildExportRuns() {
+    const runs = [];
+    const activeRuns = new Map();
+
+    state.eventLog.forEach((event) => {
+      const eventType = String(event.eventType || "");
+      const isTimer = isCountdownEvent(event);
+      const key = `${isTimer ? "timer" : "stopwatch"}:${event.stopwatchId}`;
+
+      if (eventType === "start" || eventType === "countdown_start") {
+        const run = createExportRun(event);
+        runs.push(run);
+        activeRuns.set(key, run);
+        return;
+      }
+
+      if (eventType === "lap") {
+        const run = activeRuns.get(key) || createExportRun(event);
+        if (!activeRuns.has(key)) {
+          runs.push(run);
+          activeRuns.set(key, run);
+        }
+        run.laps.push(formatEventTime(event.timestamp));
+        return;
+      }
+
+      if (eventType === "stop" || eventType === "countdown_stop" || eventType === "countdown_complete" || eventType === "countdown_reset") {
+        const run = activeRuns.get(key);
+        if (run) {
+          run.end = formatEventTime(event.timestamp);
+          run.elapsed = formatElapsedHms(event.elapsedMs);
+          activeRuns.delete(key);
+        }
+      }
+    });
+
+    return runs;
+  }
+
+  function createExportRun(event) {
+    return {
+      date: formatCsvDate(event.timestamp),
+      type: isCountdownEvent(event) ? t("csvTimer") : t("csvStopwatch"),
+      name: event.stopwatchName,
+      start: formatEventTime(event.timestamp),
+      laps: [],
+      end: "",
+      elapsed: "",
+    };
   }
 
   function applyLanguage(language) {

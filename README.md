@@ -1,6 +1,6 @@
 # StopTheTime
 
-Version 1.1.15
+Version 1.2.0
 
 StopTheTime is a dependency-free, fully client-side web app for running multiple stopwatches and one countdown timer at the same time.
 
